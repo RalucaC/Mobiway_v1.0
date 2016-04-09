@@ -145,8 +145,7 @@ public class MgmtAppController {
 
 			mav.setViewName("/traffic/account");
 			mav.addObject("account_try_update", "yes");
-			mav.addObject("name",
-					user.getFirstname() + " " + user.getLastname());
+			
 			mav.addObject("firstname", user.getFirstname());
 			mav.addObject("lastname", user.getLastname());
 			mav.addObject("username", user.getUsername());
