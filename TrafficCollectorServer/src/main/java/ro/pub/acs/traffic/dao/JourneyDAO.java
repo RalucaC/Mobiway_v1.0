@@ -15,4 +15,7 @@ public interface JourneyDAO extends Serializable {
 	public int update(Journey journey);
 
 	public int add(Journey journey);
+	
+	public Journey getCurrentJourney(User userId);
+	
 }

@@ -1,5 +1,7 @@
 package ro.pub.acs.traffic.dao;
 
+import java.util.*;
+
 import org.hibernate.*;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -28,6 +30,17 @@ public class JourneyDataDAOImpl implements JourneyDataDAO {
 
 		return journeyData;
 	}
+	
+	@Override
+	@Transactional
+	public List<JourneyData> getByJourneyId(Journey journeyId) {
+		Criteria criteria = sessionFactory.getCurrentSession()
+				.createCriteria(JourneyData.class).add(Restrictions.eq("journeyId", journeyId));
+
+		// @SuppressWarnings("unchecked")
+		return criteria.list();
+	}
+
 
 	@Override
 	@Transactional
