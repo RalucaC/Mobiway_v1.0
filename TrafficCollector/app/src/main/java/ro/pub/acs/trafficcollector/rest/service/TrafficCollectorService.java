@@ -105,6 +105,12 @@ public interface TrafficCollectorService {
     @POST(Constants.URL_GET_NEARBY_LOCATIONS)
     List<Place> getNearbyLocations(@Body ArrayList<String> types);
 
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @POST(Constants.URL_NEW_JOURNEY)
+    boolean newJourney(@Body Integer userId);
 
     /*@Headers({
             "Content-Type: application/json",

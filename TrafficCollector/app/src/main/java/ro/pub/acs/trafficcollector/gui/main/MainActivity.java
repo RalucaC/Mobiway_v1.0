@@ -415,6 +415,25 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     protected void startLocationUpdates() {
+
+        // Notify Server that we started a new Journey
+        if (spm.getNotificationsEnabled()) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        RestClient restClient = new RestClient();
+                        restClient.getApiService().newJourney(spm.getAuthUserId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
+        } else {
+            //locationArrayList.add(location);
+        }
+
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 googleApiClient,
                 locationRequest,

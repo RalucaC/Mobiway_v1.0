@@ -36,6 +36,7 @@ public abstract class Constants {
     public static final String URL_GET_NEARBY_LOCATIONS = "/social/getNearbyLocations";
     public static final String URL_GET_ROUTE = "/social/getRoute";
     public static final String URL_GET_ROUTE_FROM_MAPZEN = "/social/getRouteFromMapzen";
+    public static final String URL_NEW_JOURNEY = "/location/newJourney";
 
     /* SharedPreferences file name */
     public static final String PREF_NAME = "trafficCollectorPreferences";
