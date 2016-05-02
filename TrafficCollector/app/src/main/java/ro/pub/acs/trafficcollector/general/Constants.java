@@ -17,7 +17,8 @@ public abstract class Constants {
 
     /*   Application Keys and IDs   */
     /* URLs for WEB Services */
-    public static final String SERVICES_URL = "http://192.168.100.5:8082/TrafficCollectorServer/services";
+//    public static final String SERVICES_URL = "http://192.168.100.5:8082/TrafficCollectorServer/services";
+    public static final String SERVICES_URL = "http://192.168.0.18:8082/TrafficCollectorServer/services";
 //    public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/TrafficCollectorServer/services";
     public static final String MAPS_API_GEOCODE = "http://maps.google.com/maps/api/geocode/json?address=";
 
