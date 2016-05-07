@@ -1,6 +1,7 @@
 /* Basic  ---------------------------------------- */
-
-.clear { clear: both; }
+.clear {
+	clear: both;
+}
 
 body {
 	background: white;
@@ -17,7 +18,6 @@ body {
 }
 
 /* Logo  ---------------------------------------- */
-
 h1 {
 	margin: 15px 0 10px 5px;
 	width: 225px;
@@ -31,16 +31,17 @@ h1 a {
 	height: 28px;
 }
 
-h1 span { display: none; }
+h1 span {
+	display: none;
+}
 
 /* Main Navigation ---------------------------------------- */
-
 #mainNav {
 	width: 918px;
 	height: 37px;
 	padding: 6px;
 	margin: 10px 0 20px 0;
-	background: url(../images/admin/top-menu-bg.gif) no-repeat left top; 
+	background: url(../images/admin/top-menu-bg.gif) no-repeat left top;
 	/* We used a background image making the thick border and the thin one to keep the html structure simple */
 }
 
@@ -66,27 +67,27 @@ h1 span { display: none; }
 	float: right;
 	border-left: 1px solid #ddd;
 	border-right: none;
-	
 }
 
 #mainNav li.logout a {
 	color: #c66653;
 }
 
-#mainNav li a:hover { background: #fdfcf6; }
+#mainNav li a:hover {
+	background: #fdfcf6;
+}
 
 #mainNav li a.active, #mainNav li a.active {
-	background: #f0f0f0 url(../images/admin/top-menu-item-bg.gif) repeat-x left top;
+	background: #f0f0f0 url(../images/admin/top-menu-item-bg.gif) repeat-x
+		left top;
 	color: #454545;
 }
 
 /* Container ---------------------------------------- */
-
 #containerHolder {
 	background: #eee;
 	padding: 5px;
 }
-
 
 #container {
 	background: #fff;
@@ -95,9 +96,7 @@ h1 span { display: none; }
 	padding: 20px;
 }
 
-
 /* Breadcrumb ---------------------------------------- */
-
 h2 {
 	color: #646464;
 	font-size: 16px;
@@ -113,12 +112,15 @@ h2 a {
 	text-decoration: none;
 }
 
-h2 a.active { color: #c66653; }
+h2 a.active {
+	color: #c66653;
+}
 
-h2 a:hover { text-decoration: underline; }
+h2 a:hover {
+	text-decoration: underline;
+}
 
 /* Content ---------------------------------------- */
-
 #main {
 	padding: 0 0 0 0;
 }
@@ -154,7 +156,6 @@ h3 {
 #main table tr td a {
 	color: #646464;
 	text-decoration: none;
-
 }
 
 #main table tr.odd td {
@@ -174,25 +175,45 @@ h3 {
 	color: #ccc;
 }
 
-#main table tr:hover td { background: #fdfcf6; }
-#main table tr:hover td a { text-decoration: underline; }
+#main table tr:hover td {
+	background: #fdfcf6;
+}
 
+#main table tr:hover td a {
+	text-decoration: underline;
+}
 
 #main table tr td.action {
 	text-align: right;
 	padding: 0 10px 0 0;
 	text-decoration: none;
-
 }
 
+#main table tr .action a {
+	margin: 0 0 0 10px;
+	text-decoration: none;
+	color: #9b9b9b;
+}
 
-#main table tr .action a { margin: 0 0 0 10px; text-decoration: none; color: #9b9b9b; }
-#main table tr:hover .action .edit { color: #c5a059; }
-#main table tr:hover .action .delete { color: #a02b2b; }
-#main table tr:hover .action .view { color: #55a34a; }
-#main table tr:hover .action .add { color: #55a34a; }
+#main table tr:hover .action .edit {
+	color: #c5a059;
+}
 
-#main table tr:hover .action a:hover { text-decoration: underline; }
+#main table tr:hover .action .delete {
+	color: #a02b2b;
+}
+
+#main table tr:hover .action .view {
+	color: #55a34a;
+}
+
+#main table tr:hover .action .add {
+	color: #55a34a;
+}
+
+#main table tr:hover .action a:hover {
+	text-decoration: underline;
+}
 
 #main table tr th.action a {
 	margin-left: 0;
@@ -206,7 +227,11 @@ h3 {
 	position: relative;
 }
 
-#main fieldset p { margin: 0 0 14px 0; float: left; width: 100%;  }
+#main fieldset p {
+	margin: 0 0 14px 0;
+	float: left;
+	width: 100%;
+}
 
 #main fieldset label {
 	display: block;
@@ -217,7 +242,8 @@ h3 {
 
 #main fieldset .text-long {
 	border: 1px solid #ddd;
-	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left top;
+	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left
+		top;
 	font: 11px Arial, Helvetica, sans-serif;
 	color: #646464;
 	padding: 5px 7px;
@@ -228,7 +254,8 @@ h3 {
 
 #main fieldset .text-medium {
 	border: 1px solid #ddd;
-	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left top;
+	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left
+		top;
 	font: 11px Arial, Helvetica, sans-serif;
 	color: #646464;
 	padding: 5px 7px;
@@ -239,7 +266,8 @@ h3 {
 
 #main fieldset .text-small {
 	border: 1px solid #ddd;
-	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left top;
+	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left
+		top;
 	font: 11px Arial, Helvetica, sans-serif;
 	color: #646464;
 	padding: 5px 7px;
@@ -248,14 +276,16 @@ h3 {
 	margin: 0 10px 0 0;
 }
 
-#main fieldset .text-long:focus, 
-#main fieldset .text-medium:focus,
-#main fieldset .text-small:focus,
-#main fieldset textarea:focus { background: #fdfcf6 url(../images/admin/input-shaddow-hover.gif) no-repeat left top; }
+#main fieldset .text-long:focus, #main fieldset .text-medium:focus,
+	#main fieldset .text-small:focus, #main fieldset textarea:focus {
+	background: #fdfcf6 url(../images/admin/input-shaddow-hover.gif)
+		no-repeat left top;
+}
 
 #main fieldset textarea {
 	border: 1px solid #ddd;
-	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left top;
+	background: #fff url(../images/admin/input-shaddow.gif) no-repeat left
+		top;
 	font: 11px Arial, Helvetica, sans-serif;
 	color: #646464;
 	padding: 5px 7px;
@@ -281,7 +311,6 @@ h3 {
 }
 
 /* Footer ---------------------------------------- */
-
 #footer {
 	margin: 10px 0 30px 0;
 	font-size: 11px;
@@ -290,10 +319,13 @@ h3 {
 	padding: 0 0 0 5px;
 }
 
-#footer a { color: #9B9B9B; }
+#footer a {
+	color: #9B9B9B;
+}
 
-#footer a:hover { text-decoration: none; }
-
+#footer a:hover {
+	text-decoration: none;
+}
 
 .icon-ok {
 	padding-right: 20px;

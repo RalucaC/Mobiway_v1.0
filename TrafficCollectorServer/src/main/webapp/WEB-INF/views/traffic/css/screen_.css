@@ -24,7 +24,6 @@ html, body {
 	right: 5px;
 	background: white;
 	width: 170px;
-	
 	-moz-box-shadow: 0 0 5px #444;
 	-webkit-box-shadow: 0 0 5px #444;
 	box-shadow: 0 0 5px #444;
@@ -94,7 +93,6 @@ html, body {
 	right: 5px;
 	bottom: 18px;
 	background: white;
-
 	-moz-box-shadow: 0 0 5px #444;
 	-webkit-box-shadow: 0 0 5px #444;
 	box-shadow: 0 0 5px #444;
@@ -106,7 +104,7 @@ html, body {
 	width: 170px;
 	font-family: Arial, Verdana, Tahoma, sans-serif;
 	font-size: 12px;
-	background: url(../images/search.gif) no-repeat right center;	
+	background: url(../images/search.gif) no-repeat right center;
 }
 
 #search_results {
@@ -117,7 +115,6 @@ html, body {
 	margin-left: -250px;
 	width: 500px;
 	background: white;
-	
 	-moz-box-shadow: 0 0 5px #444;
 	-webkit-box-shadow: 0 0 5px #444;
 	box-shadow: 0 0 5px #444;

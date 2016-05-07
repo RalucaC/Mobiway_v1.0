@@ -1,16 +1,21 @@
 <!DOCTYPE html >
 <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <title>Google Maps Example</title>
-    <style>
-        #map {
-            position: absolute; left: 0;top: 0; right: 0; bottom: 0;
-        }
-    </style>
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyB_JRyT6pqtylf36u66OEPp0M8Qkpp0G8g"></script>
-    <script type="text/javascript" src="js/StyledMarker.js"></script>
-    <script type="text/javascript">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Google Maps Example</title>
+<style>
+#map {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+</style>
+<script type="text/javascript"
+	src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyB_JRyT6pqtylf36u66OEPp0M8Qkpp0G8g"></script>
+<script type="text/javascript" src="js/StyledMarker.js"></script>
+<script type="text/javascript">
         //<![CDATA[
 
         var customIcons = {
@@ -165,6 +170,6 @@
 </head>
 
 <body onload="load()">
-    <div id="map"></div>
+	<div id="map"></div>
 </body>
 </html>
