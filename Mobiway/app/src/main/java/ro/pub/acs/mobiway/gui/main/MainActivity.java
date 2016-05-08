@@ -54,7 +54,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import ro.pub.acs.mobiway.R;
@@ -66,6 +70,7 @@ import ro.pub.acs.mobiway.gui.statistics.StatisticsActivity;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.Place;
 import ro.pub.acs.mobiway.rest.model.User;
+
 
 public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener,
@@ -98,6 +103,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         spm = new SharedPreferencesManagement(getApplicationContext());
+
+        checkServerConnectivity();
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -142,11 +149,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             locations.add(location1);
                             locations.add(location2);
 
-                            /*List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations,
-                                    spm.getRouteType());*/
+                             /* getRoute -> OSRM getRoutePG -> PGRouting */
+                            List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
 
-                            List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations,
-                                    spm.getRouteType());
+//                          List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations,
+//                                    spm.getRouteType());
                             showRouteOnMap(result);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -717,5 +724,63 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         });
         thread.start();
     }
+
+    private boolean checkNetworkConnectivity() {
+        if (!Util.isNetworkAvailable(this)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MainActivity.this);
+                    dlgAlert.setMessage("\nNo network connectivity" +
+                            "\n\nPlease enable WiFi or" +
+                            "\nMobile Data" +
+                            "\n\n\nGoing to Exit now !");
+                    dlgAlert.setTitle("Network Error");
+                    dlgAlert.setPositiveButton("Exit Application", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    dlgAlert.setCancelable(false);
+                    dlgAlert.create().show();
+                }
+            });
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkServerConnectivity() {
+        boolean canConnect = false;
+        try {
+            RestClient restClient = new RestClient();
+            canConnect = restClient.getApiService().checkServerConnectivity();
+        } catch (Exception ex) {
+            canConnect = false;
+        }
+
+        if (!canConnect) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MainActivity.this);
+                    dlgAlert.setMessage("\nNo server connectivity" +
+                            "\n\n\nGoing to Exit now !");
+                    dlgAlert.setTitle("Server Connectivity Error");
+                    dlgAlert.setPositiveButton("Exit Application", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    dlgAlert.setCancelable(false);
+                    dlgAlert.create().show();
+                }
+            });
+        }
+
+        return canConnect;
+    }
+
+
 
 }

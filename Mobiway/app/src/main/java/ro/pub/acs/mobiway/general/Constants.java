@@ -16,11 +16,14 @@ public abstract class Constants {
     public static long LOCATION_REQUEST_FASTEST_INTERVAL = 30000;
 
     /*   Application Keys and IDs   */
+
+
     /* URLs for WEB Services */
     public static final String APP_NAME = "Mobiway";
     public static final String SERVICES_URL = "http://192.168.100.5:8082/MobiwayServer/services";
 //    public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/TrafficCollectorServer/services";
 
+    public static final String URL_CHECK_SERVER_CONN = "/checkServerConn";
     public static final String URL_GET_POLICY_APP = "/authenticate/getPolicyListForApp";
     public static final String URL_GET_POLICY_USER_APP = "/authenticate/getUserPolicyListForApp";
     public static final String URL_ACCEPT_POLICY_APP = "/authenticate/acceptUserPolicyListForApp";
@@ -42,7 +45,9 @@ public abstract class Constants {
     public static final String URL_ADD_FRIENDS = "/social/addFriends";
     public static final String URL_GET_NEARBY_LOCATIONS = "/social/getNearbyLocations";
     public static final String URL_GET_ROUTE = "/social/getRoute";
+    public static final String URL_GET_ROUTE_PG = "/social/getRoutePG";
     public static final String URL_GET_ROUTE_FROM_MAPZEN = "/social/getRouteFromMapzen";
+
     public static final String URL_NEW_JOURNEY = "/location/newJourney";
 
     /* SharedPreferences file name */
