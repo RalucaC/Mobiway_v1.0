@@ -54,10 +54,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import ro.pub.acs.mobiway.R;
@@ -75,7 +72,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static ArrayList<String> prefList = null;
     private static List<User> friendsNames = null;
     private static List<ro.pub.acs.mobiway.rest.model.Location> friendsLocations = null;
     private static boolean firstLocation = true;
@@ -123,8 +119,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             getFriends();
         }
 
-        if (prefList != null && !prefList.isEmpty())
-            getNearbyLocations();
+        getNearbyLocations();
 
         showRouteButton = (Button) findViewById(R.id.button_show_route);
         showRouteButton.setOnClickListener(new View.OnClickListener() {
@@ -544,6 +539,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void getNearbyLocations() {
+
+        Set<String> locPref = spm.getUserLocPreferences();
+        final ArrayList<String> prefList = new ArrayList<>();
+        prefList.addAll(locPref);
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {

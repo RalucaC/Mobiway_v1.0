@@ -11,14 +11,18 @@ import android.preference.SwitchPreference;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
-import ro.pub.acs.mobiway.gui.main.MainActivity;
 
 public class SettingsFragment extends PreferenceFragment {
 
     private ArrayList<String> categories =  new ArrayList<>();
+
+    private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
+    private ArrayList<String> checkedCategories = new ArrayList<>();
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -29,7 +33,6 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
 
-        final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
         final EditTextPreference etp = (EditTextPreference) findPreference(getResources().getString(R.string.key_account_preference));
         final SwitchPreference sp = (SwitchPreference) findPreference(getResources().getString(R.string.key_location_preference));
         final ListPreference mapListPreference = (ListPreference) findPreference(getResources().getString(R.string.key_map_type_list_preference));
@@ -65,25 +68,26 @@ public class SettingsFragment extends PreferenceFragment {
         setListeners();
     }
 
-    private void getPreferences(){
-        if(MainActivity.prefList == null)
-            MainActivity.prefList = new ArrayList();
-        else
-            MainActivity.prefList.clear();
+    private Set<String> getPreferences(){
 
-        Log.e("prefList cleared", MainActivity.prefList.toString());
+        Set<String> userLocPreferences = new HashSet<>();
 
-        for (String category : categories){
+        for (String category : categories) {
             CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(category);
-            if(checkBoxPreference.isChecked()){
-                MainActivity.prefList.add(category);
+
+            if(checkBoxPreference.isChecked()) {
+                userLocPreferences.add(category);
             }
         }
 
-        Log.e("prefList", MainActivity.prefList.toString());
+        Log.e("prefList", userLocPreferences.toString());
+        spm.setUserLocPreferences(userLocPreferences);
+
+        return userLocPreferences;
+
     }
 
-    private void setListeners(){
+    private void setListeners() {
         categories.add("bar");
         categories.add("cafe");
         categories.add("fast_food");
@@ -109,20 +113,21 @@ public class SettingsFragment extends PreferenceFragment {
         categories.add("marketplace");
         categories.add("police");
 
-        getPreferences();
+        final Set<String> userLocPreferences = getPreferences();
 
-        for (final String category : categories){
+        for (final String category : categories) {
             CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(category);
             checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if(new Boolean(newValue.toString())){
-                        MainActivity.prefList.add(category);
+                        userLocPreferences.add(category);
                     } else {
-                        MainActivity.prefList.remove(category);
+                        userLocPreferences.remove(category);
                     }
 
-                    Log.e("prefList changed", MainActivity.prefList.toString());
+                    Log.e("prefList changed", userLocPreferences.toString());
 
+                    spm.setUserLocPreferences(userLocPreferences);
                     return true;
                 }
             });

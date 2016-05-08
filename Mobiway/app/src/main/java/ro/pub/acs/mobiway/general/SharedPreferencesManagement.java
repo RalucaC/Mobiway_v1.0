@@ -1,11 +1,7 @@
 package ro.pub.acs.mobiway.general;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-
-import java.util.Date;
-
+import android.content.*;
+import java.util.*;
 import ro.pub.acs.mobiway.gui.auth.AuthenticationActivity;
 
 public class SharedPreferencesManagement {
@@ -156,6 +152,33 @@ public class SharedPreferencesManagement {
 
     public void setNotificationsEnabled(boolean value) {
         editor.putBoolean(Constants.KEY_NOTIFICATIONS_ENABLED, value);
+        editor.commit();
+    }
+
+    public boolean getShareLocationEnabled() {
+        return pref.getBoolean(Constants.KEY_SHARE_LOCATION, true);
+    }
+
+    public void setShareLocationEnabled(boolean value) {
+        editor.putBoolean(Constants.KEY_SHARE_LOCATION, value);
+        editor.commit();
+    }
+
+    public boolean getShareSpeedEnabled() {
+        return pref.getBoolean(Constants.KEY_SHARE_SPEED, true);
+    }
+
+    public void setShareSpeedEnabled(boolean value) {
+        editor.putBoolean(Constants.KEY_SHARE_SPEED, value);
+        editor.commit();
+    }
+
+    public Set<String> getUserLocPreferences() {
+        return pref.getStringSet(Constants.KEY_LOC_PREFERENCES, new HashSet<String>());
+    }
+
+    public void setUserLocPreferences(Set<String> userLocPreferences) {
+        editor.putStringSet(Constants.KEY_LOC_PREFERENCES, userLocPreferences);
         editor.commit();
     }
 

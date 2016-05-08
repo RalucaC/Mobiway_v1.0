@@ -84,6 +84,7 @@
     <string name="phone_number_explanation">*Your phone number is used to link you with your friends.
     Without it, you cannot see your friends in this app.</string>
     <string name="login_button_content">LOG IN</string>
+    <string name="accept_policy_button_content"> ACCEPT POLICY </string>
     <string name="create_account_button_content"> CREATE ACCOUNT </string>
     <string name="create_account_action_bar_content">Create Account</string>
     <string name="authentication_error">E-mail or password is incorrect!</string>
@@ -91,6 +92,8 @@
     <string name="lastName">Last name</string>
     <string name="done">DONE</string>
     <string name="loading">Loading..</string>
+    <string name="share_location">Share My Location</string>
+    <string name="share_speed">Share My Speed</string>
 
     <!-- Map -->
     <string name="show_route">Show Route</string>
