@@ -57,6 +57,9 @@ public class JourneyData implements Serializable {
 		this.longitude = longitude;
 		this.speed = speed;
 		this.timestamp = timestamp;
+		
+		// Extract Unix time (seconds) from timestamp
+		this.timestampUnix = new Integer((int) (timestamp.getTime() / 1000L));
 	}
 
 	public Integer getId() {
@@ -97,8 +100,15 @@ public class JourneyData implements Serializable {
 
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
+		
+		// Extract Unix time (seconds) from time stamp
+		this.timestampUnix = new Integer((int) (timestamp.getTime() / 1000L));
 	}
-
+	
+	public Integer getTimestampUnix() {
+		return timestampUnix;
+	}
+	
 	public Journey getJourneyId() {
 		return journeyId;
 	}
