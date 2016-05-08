@@ -44,6 +44,13 @@
     <string name="key_max_speed_preference">key_max_speed_preference</string>
     <string name="key_min_speed_preference">key_min_speed_preference</string>
 
+    <string name="use_gps_as_src">Use GPS as Source</string>
+    <string name="use_as_src">Set as Source</string>
+    <string name="use_as_dst">Set as Destination</string>
+    <string name="show_route_pgrouting">Show Route (pgRouting)</string>
+    <string name="show_route_osrm">Show Route (OSRM)</string>
+    <string name="clear_routes">Clear Routes</string>
+
     <string-array name="mapTypeEntries">
         <item>Normal</item>
         <item>Satellite</item>

@@ -3,7 +3,6 @@
 
     <color name="custom_background_main_theme_color">#EEEEEE</color>
     <color name="custom_background_theme_color">#000</color>
-    <!--<color name="custom_background_theme_color">#00695C</color>-->
     <color name="custom_text_theme_color">#FFFFFF</color>
     <color name="custom_background_autocomplete_text_view">#BFFFFFFF</color>
     <color name="custom_color_black">#000000</color>

@@ -1,7 +1,15 @@
 package ro.pub.acs.mobiway.general;
 
-import android.content.*;
-import java.util.*;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import ro.pub.acs.mobiway.gui.auth.AuthenticationActivity;
 
 public class SharedPreferencesManagement {
@@ -174,7 +182,20 @@ public class SharedPreferencesManagement {
 
     public void setUserPolicy(Set<String> policyPreferences) {
         editor.putStringSet(Constants.KEY_POLICY_PREFERENCES, policyPreferences);
+
+        for (String policy : policyPreferences) {
+            editor.putBoolean(policy, true);
+        }
+
         editor.commit();
+    }
+
+    public void inspectSettings() {
+        Map<String, ?> allEntries = pref.getAll();
+
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Log.d("Setting values", entry.getKey() + ": " + entry.getValue().toString());
+        }
     }
 
     public void setUserLocPreferences(Set<String> userLocPreferences) {
