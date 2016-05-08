@@ -369,6 +369,26 @@ public class ServicesController {
 
 		return friends;
 	}
+	
+	/* Check if the reported location is within a near timeframe */
+	private boolean locationIsOk(Location location) {
+		
+		if (location != null && location.getTimestamp() != null) {
+			Date now = new Date();
+			Date last = location.getTimestamp();
+	
+			// Only return locations if reported in the last minute
+			long secondsBetween =
+					(now.getTime() - last.getTime()) / 1000;
+	
+			if (secondsBetween >= 0 && secondsBetween <= 60) {
+				return true;
+			}
+		}
+		
+		return false;
+		
+	}
 
 	@RequestMapping(value = "/social/getFriendsLocations", method = RequestMethod.GET)
 	public @ResponseBody List<Location> getFriendsLocations(
@@ -382,8 +402,7 @@ public class ServicesController {
 			for (User friend : friends) {
 				Location location = locationDAO.getLocation(friend);
 				
-				if (location != null) {
-					location.setTimestamp(null);
+				if (locationIsOk(location)) {
 					locations.add(location);
 				}
 			}
@@ -470,7 +489,7 @@ public class ServicesController {
 			    	}
 			    }            
 			} catch (Exception exception) {
-			    exception.printStackTrace();
+//			    exception.printStackTrace();
 			}
 		}
 
