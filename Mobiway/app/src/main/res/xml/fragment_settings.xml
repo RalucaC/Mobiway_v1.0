@@ -8,6 +8,7 @@
 
 
     <PreferenceCategory
+        android:id="@+id/prefCat"
         android:title="General"
         android:persistent="true">
 
@@ -47,6 +48,13 @@
             android:entryValues="@array/routeTypeValues"
             android:defaultValue="Car"
             />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:id="@+id/prefPolicy"
+        android:persistent="true"
+        android:title="@string/policy_settings"
+        android:key="@string/policy_settings">
     </PreferenceCategory>
 
     <PreferenceCategory

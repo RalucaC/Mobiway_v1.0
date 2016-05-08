@@ -6,10 +6,10 @@ import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.rest.service.SessionRequestInterceptor;
-import ro.pub.acs.mobiway.rest.service.TrafficCollectorService;
+import ro.pub.acs.mobiway.rest.service.MobiwayService;
 
 public class RestClient {
-    private TrafficCollectorService apiService;
+    private MobiwayService apiService;
 
     public RestClient() {
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -19,10 +19,10 @@ public class RestClient {
                 .setClient(new OkClient(new OkHttpClient()))
                 .build();
 
-        apiService = restAdapter.create(TrafficCollectorService.class);
+        apiService = restAdapter.create(MobiwayService.class);
     }
 
-    public TrafficCollectorService getApiService() {
+    public MobiwayService getApiService() {
         return apiService;
     }
 }

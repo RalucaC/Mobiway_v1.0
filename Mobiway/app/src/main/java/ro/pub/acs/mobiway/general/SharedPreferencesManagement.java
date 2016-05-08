@@ -156,25 +156,25 @@ public class SharedPreferencesManagement {
     }
 
     public boolean getShareLocationEnabled() {
-        return pref.getBoolean(Constants.KEY_SHARE_LOCATION, true);
+        return getUserPolicies().contains(Constants.KEY_SHARE_LOCATION);
     }
 
-    public void setShareLocationEnabled(boolean value) {
-        editor.putBoolean(Constants.KEY_SHARE_LOCATION, value);
-        editor.commit();
-    }
 
     public boolean getShareSpeedEnabled() {
-        return pref.getBoolean(Constants.KEY_SHARE_SPEED, true);
+        return getUserPolicies().contains(Constants.KEY_SHARE_SPEED);
     }
 
-    public void setShareSpeedEnabled(boolean value) {
-        editor.putBoolean(Constants.KEY_SHARE_SPEED, value);
-        editor.commit();
+    public Set<String> getUserPolicies() {
+        return pref.getStringSet(Constants.KEY_POLICY_PREFERENCES, new HashSet<String>());
     }
 
     public Set<String> getUserLocPreferences() {
         return pref.getStringSet(Constants.KEY_LOC_PREFERENCES, new HashSet<String>());
+    }
+
+    public void setUserPolicy(Set<String> policyPreferences) {
+        editor.putStringSet(Constants.KEY_POLICY_PREFERENCES, policyPreferences);
+        editor.commit();
     }
 
     public void setUserLocPreferences(Set<String> userLocPreferences) {

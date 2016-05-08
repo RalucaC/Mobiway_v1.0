@@ -17,8 +17,15 @@ public abstract class Constants {
 
     /*   Application Keys and IDs   */
     /* URLs for WEB Services */
+    public static final String APP_NAME = "Mobiway";
     public static final String SERVICES_URL = "http://192.168.100.5:8082/MobiwayServer/services";
 //    public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/TrafficCollectorServer/services";
+
+    public static final String URL_GET_POLICY_APP = "/authenticate/getPolicyListForApp";
+    public static final String URL_GET_POLICY_USER_APP = "/authenticate/getUserPolicyListForApp";
+    public static final String URL_ACCEPT_POLICY_APP = "/authenticate/acceptUserPolicyListForApp";
+
+
     public static final String MAPS_API_GEOCODE = "http://maps.google.com/maps/api/geocode/json?address=";
 
     public static final String URL_LOG_IN = "/authenticate/userpass";
@@ -56,11 +63,12 @@ public abstract class Constants {
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_LONGITUDE = "longitude";
     public static final String KEY_NOTIFICATIONS_ENABLED = "notifEnabled";
-    public static final String KEY_SHARE_LOCATION = "shareLocation";
-    public static final String KEY_SHARE_SPEED = "shareSpeed";
+    public static final String KEY_SHARE_LOCATION = "Share Location";
+    public static final String KEY_SHARE_SPEED = "Share Speed";
     public static final String KEY_FIRST_TIME_USE = "firstTimeUse";
     public static final String KEY_MAP_TYPE = "mapType";
     public static final String KEY_ROUTE_TYPE = "routeType";
     public static final String KEY_LOCATION_HISTORY = "locationHistory";
     public static final String KEY_LOC_PREFERENCES = "locationPreferences";
+    public static final String KEY_POLICY_PREFERENCES = "policyPreferences";
 }

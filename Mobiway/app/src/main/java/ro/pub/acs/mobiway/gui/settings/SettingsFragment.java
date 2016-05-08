@@ -1,31 +1,88 @@
 package ro.pub.acs.mobiway.gui.settings;
 
-
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ro.pub.acs.mobiway.R;
+import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
+import ro.pub.acs.mobiway.rest.RestClient;
+import ro.pub.acs.mobiway.rest.model.Policy;
 
 public class SettingsFragment extends PreferenceFragment {
 
-    private ArrayList<String> categories =  new ArrayList<>();
-
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
-    private ArrayList<String> checkedCategories = new ArrayList<>();
 
     public SettingsFragment() {
         // Required empty public constructor
+    }
+
+    private void setAcceptedPolicies() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
+                    Set<String> policyPreferences = spm.getUserPolicies();
+                    List<String> policyList = new ArrayList<String>();
+                    policyList.addAll(policyPreferences);
+
+                    RestClient restClient = new RestClient();
+                    restClient.getApiService().acceptUserPolicyListForApp(
+                            spm.getAuthUserId(), Constants.APP_NAME, policyList);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+
+
+    private void populatePolicyList(List<Policy> appPolicies) {
+        PreferenceScreen screen = this.getPreferenceScreen();
+        PreferenceCategory policyCat = (PreferenceCategory) findPreference(getString(R.string.policy_settings));
+        Set<String> acceptedPolicies = spm.getUserPolicies();
+
+        for (Policy policy : appPolicies) {
+            CheckBoxPreference checkBoxPref = new CheckBoxPreference(screen.getContext());
+            checkBoxPref.setKey(policy.getPolicyName());
+            checkBoxPref.setTitle(policy.getPolicyName());
+            checkBoxPref.setSummary(policy.getPolicyDescription());
+            checkBoxPref.setChecked(acceptedPolicies.contains(policy.getPolicyName()));
+            policyCat.addPreference(checkBoxPref);
+        }
+    }
+
+    private void updatePolicyList() {
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<Policy> policies = new ArrayList<>();
+                try {
+                    RestClient restClient = new RestClient();
+                    policies = restClient.getApiService().getPolicyListApp(Constants.APP_NAME);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                populatePolicyList(policies);
+            }
+        });
+        thread.start();
     }
 
     @Override
@@ -65,12 +122,35 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
 
-        setListeners();
+        updatePolicyList();
+    }
+
+    @Override
+    public void onStop() {
+        getPolicyPreferences();
+        getPreferences();
+        super.onStop();
+    }
+
+    private void getPolicyPreferences() {
+        Set<String> acceptedPolicies = new HashSet<>();
+
+        PreferenceCategory policyCat = (PreferenceCategory) findPreference(getString(R.string.policy_settings));
+        int count = policyCat.getPreferenceCount();
+        for (int i = 0; i < count; ++i) {
+            CheckBoxPreference ck = (CheckBoxPreference) policyCat.getPreference(i);
+            if (ck != null && ck.isChecked()) {
+                acceptedPolicies.add(ck.getTitle().toString());
+            }
+        }
+        spm.setUserPolicy(acceptedPolicies);
+        setAcceptedPolicies();
     }
 
     private Set<String> getPreferences(){
 
         Set<String> userLocPreferences = new HashSet<>();
+        String[] categories = getResources().getStringArray(R.array.user_loc);
 
         for (String category : categories) {
             CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(category);
@@ -85,52 +165,5 @@ public class SettingsFragment extends PreferenceFragment {
 
         return userLocPreferences;
 
-    }
-
-    private void setListeners() {
-        categories.add("bar");
-        categories.add("cafe");
-        categories.add("fast_food");
-        categories.add("restaurant");
-        categories.add("pub");
-        categories.add("school");
-        categories.add("college");
-        categories.add("library");
-        categories.add("university");
-        categories.add("fuel");
-        categories.add("taxi");
-        categories.add("car_wash");
-        categories.add("atm");
-        categories.add("bank");
-        categories.add("clinic");
-        categories.add("dentist");
-        categories.add("hospital");
-        categories.add("pharmacy");
-        categories.add("cinema");
-        categories.add("night_club");
-        categories.add("theatre");
-        categories.add("gym");
-        categories.add("marketplace");
-        categories.add("police");
-
-        final Set<String> userLocPreferences = getPreferences();
-
-        for (final String category : categories) {
-            CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(category);
-            checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if(new Boolean(newValue.toString())){
-                        userLocPreferences.add(category);
-                    } else {
-                        userLocPreferences.remove(category);
-                    }
-
-                    Log.e("prefList changed", userLocPreferences.toString());
-
-                    spm.setUserLocPreferences(userLocPreferences);
-                    return true;
-                }
-            });
-        }
     }
 }

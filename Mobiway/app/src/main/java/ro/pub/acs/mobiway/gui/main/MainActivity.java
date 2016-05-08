@@ -61,8 +61,8 @@ import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.general.Util;
-import ro.pub.acs.mobiway.gui.statistics.StatisticsActivity;
 import ro.pub.acs.mobiway.gui.settings.SettingsActivity;
+import ro.pub.acs.mobiway.gui.statistics.StatisticsActivity;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.Place;
 import ro.pub.acs.mobiway.rest.model.User;
@@ -119,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             getFriends();
         }
 
+        setAcceptedPolicies();
         getNearbyLocations();
 
         showRouteButton = (Button) findViewById(R.id.button_show_route);
@@ -301,6 +302,26 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         return super.onOptionsItemSelected(item);
     }
 
+    private void setAcceptedPolicies() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Set<String> policyPreferences = spm.getUserPolicies();
+                    List<String> policyList = new ArrayList<String>();
+                    policyList.addAll(policyPreferences);
+
+                    RestClient restClient = new RestClient();
+                    restClient.getApiService().acceptUserPolicyListForApp(
+                            spm.getAuthUserId(), Constants.APP_NAME, policyList);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+
     private void navigateToLocation(final double latitude, final double longitude, final float speed) {
         if (firstLocation) {
             CameraPosition cameraPosition = new CameraPosition.Builder().target(
@@ -328,6 +349,16 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 public void run() {
                     try {
                         RestClient restClient = new RestClient();
+
+                        if (!spm.getShareLocationEnabled()) {
+                            location.setLatitude(0);
+                            location.setLongitude(0);
+                        }
+
+                        if (!spm.getShareSpeedEnabled()) {
+                            location.setSpeed(0);
+                        }
+
                         restClient.getApiService().updateLocation(location);
                     } catch (Exception e) {
                         e.printStackTrace();
