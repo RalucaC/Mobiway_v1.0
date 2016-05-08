@@ -351,12 +351,12 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                         RestClient restClient = new RestClient();
 
                         if (!spm.getShareLocationEnabled()) {
-                            location.setLatitude(0);
-                            location.setLongitude(0);
+                            location.setLatitude(null);
+                            location.setLongitude(null);
                         }
 
                         if (!spm.getShareSpeedEnabled()) {
-                            location.setSpeed(0);
+                            location.setSpeed(null);
                         }
 
                         restClient.getApiService().updateLocation(location);
