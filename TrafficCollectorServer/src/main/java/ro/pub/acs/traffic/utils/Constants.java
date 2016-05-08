@@ -9,4 +9,6 @@ public interface Constants {
 	public static final String OSRM_BICYCLE_PARAMETER = "Bicycle";
 	public static final String OSRM_FOOT_PARAMETER = "Foot";
 	public static final String URL_NOMINATIM_API = "https://nominatim.openstreetmap.org";
+	public static final String URL_NOMINATIM_API_LOCAL = "http://osm-server/nominatim";
+
 }

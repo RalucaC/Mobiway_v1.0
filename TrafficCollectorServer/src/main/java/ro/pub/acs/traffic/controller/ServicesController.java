@@ -54,6 +54,12 @@ public class ServicesController {
 
 	@Autowired
 	private JourneyDataDAO journeyDataDAO;
+	
+	@Autowired
+	private PolicyDAO policyDAO;
+	
+	@Autowired
+	private UserPolicyDAO userPolicyDAO;
 
 	@RequestMapping(value = "user/getUser/{userId}", method = RequestMethod.GET)
 	public @ResponseBody User getUser(@PathVariable int userId) {
@@ -84,6 +90,67 @@ public class ServicesController {
 		User newUser = userDAO.get(userId);
 
 		return newUser;
+	}
+	
+	@RequestMapping(
+		value = "/authenticate/getPolicyListForApp/{appId}",
+		method = RequestMethod.GET)
+	public @ResponseBody List<Policy> getPolicyListForApp(
+			@PathVariable String appId) {
+
+		List<Policy> policies = policyDAO.list(appId);
+		return policies;
+	}
+
+	@RequestMapping(
+			value = "/authenticate/getUserPolicyListForApp/{userId}/{appId}",
+			method = RequestMethod.GET)
+	public @ResponseBody List<Policy> getUserPolicyListForApp(
+			@PathVariable Integer userId,
+			@PathVariable String appId,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		List <Policy> acceptedPolicies = new ArrayList<Policy>();
+		User user = userDAO.get(authToken, userId);
+		
+		if (user != null) {
+			List<UserPolicy> userPolicies =
+			userPolicyDAO.getUserAcceptedPoliciesByApp(user, appId);
+			
+			for (UserPolicy userp : userPolicies) {
+				Policy policy = policyDAO.get(userp.getId());
+				acceptedPolicies.add(policy);
+			}
+		}
+
+		return acceptedPolicies;
+	}
+
+	@RequestMapping(value = "/authenticate/acceptUserPolicyListForApp/{userId}/{appId}",
+			method = RequestMethod.POST)
+	public @ResponseBody boolean acceptPolicyListForApp(
+			@PathVariable Integer userId,
+			@PathVariable String appId,
+			@RequestHeader("X-Auth-Token") String authToken,
+			@RequestBody List<String> policyList) {
+
+		User user = userDAO.get(authToken, userId);
+		
+		if (user != null) {
+			userPolicyDAO.clearPolicies(user, appId);
+			
+			for (String policyName : policyList) {
+				Policy policy = policyDAO.get(policyName, appId);
+				UserPolicy up = new UserPolicy();
+				
+				up.setIdUser(user);
+				up.setAppId(appId);
+				up.setIdPolicy(policy);
+				userPolicyDAO.add(up);
+			}
+		}
+		
+		return true;
 	}
 
 	@RequestMapping(value = "/authenticate/facebook", method = RequestMethod.POST)
@@ -161,7 +228,7 @@ public class ServicesController {
 	}
 
 	@RequestMapping(value = "/location/newJourney", method = RequestMethod.POST)
-	public @ResponseBody boolean updateLocation(@RequestBody Integer userId,
+	public @ResponseBody boolean newJourney(@RequestBody Integer userId,
 			@RequestHeader("X-Auth-Token") String authToken) {
 		User user = userDAO.get(authToken, userId);
 
@@ -206,6 +273,35 @@ public class ServicesController {
 				journeyData.setLongitude(location.getLongitude());
 				journeyData.setSpeed(location.getSpeed());
 				journeyData.setTimestamp(currentDate);
+				
+				/* Set the OSM id (used later)*/
+				String osmId = null;
+				try {
+					HttpClient httpClient = new DefaultHttpClient();
+					
+					/* Perform Reverse Geocoding for a location */
+					StringBuilder url = new StringBuilder();
+					url.append(Constants.URL_NOMINATIM_API_LOCAL);
+					// url.append(Constants.URL_NOMINATIM_API);
+					// url.append("/reverse?format=json&zoom=18&addressdetails=0");
+					url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
+					url.append("&lat=" + location.getLatitude());
+					url.append("&lon=" + location.getLongitude());
+					
+					HttpGet httpGet = new HttpGet(url.toString());
+					HttpResponse httpGetResponse = httpClient.execute(httpGet);
+					HttpEntity httpGetEntity = httpGetResponse.getEntity();
+					
+					if (httpGetEntity != null) {  
+						String response = EntityUtils.toString(httpGetEntity);
+						JSONObject nodeData = new JSONObject(response);
+						osmId = nodeData.getString("osm_id");
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				
+				journeyData.setOsmWayId(osmId);
 				journeyDataDAO.add(journeyData);
 			}
 
@@ -366,12 +462,10 @@ public class ServicesController {
 			    		Location location = new Location();
 			    		location.setIdUser(0);
 
-                                        JSONArray coord = viaPoints.getJSONArray(i);
-					location.setLatitude((float)coord.getDouble(0));
-	  		                location.setLongitude((float)coord.getDouble(1));
-
+			    		JSONArray coord = viaPoints.getJSONArray(i);
+			    		location.setLatitude((float)coord.getDouble(0));
+	  		            location.setLongitude((float)coord.getDouble(1));
 			    		location.setSpeed(0);
-			    		
 			    		routePoints.add(location);
 			    	}
 		    		routePoints.add(locations.get(1));
