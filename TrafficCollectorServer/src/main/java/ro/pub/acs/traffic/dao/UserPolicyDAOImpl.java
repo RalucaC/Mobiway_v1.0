@@ -1,10 +1,10 @@
-package ro.pub.acs.mobiway.dao;
+package ro.pub.acs.traffic.dao;
 
 import java.util.*;
 import org.hibernate.*;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
-import ro.pub.acs.mobiway.model.*;
+import ro.pub.acs.traffic.model.*;
 
 public class UserPolicyDAOImpl implements UserPolicyDAO {
 	private SessionFactory sessionFactory;

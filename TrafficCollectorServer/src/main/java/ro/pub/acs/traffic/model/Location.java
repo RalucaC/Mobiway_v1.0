@@ -15,19 +15,13 @@ public class Location implements Serializable {
 	@Column(name = "id_user")
 	private Integer idUser;
 
-	@Basic(optional = false)
-	@NotNull
-	@Column(name = "latitude")
+	@Column(name = "latitude", nullable = true)
 	private float latitude;
 
-	@Basic(optional = false)
-	@NotNull
-	@Column(name = "longitude")
+	@Column(name = "longitude", nullable = true)
 	private float longitude;
 
-	@Basic(optional = false)
-	@NotNull
-	@Column(name = "speed")
+	@Column(name = "speed", nullable = true)
 	private int speed;
 
 	@Column(name = "timestamp")
@@ -46,7 +40,7 @@ public class Location implements Serializable {
 		this.idUser = idUser;
 	}
 
-	public Location(Integer idUser, float latitude, float longitude, int speed,
+	public Location(Integer idUser, Float latitude, Float longitude, Integer speed,
 			Date timestamp) {
 		this.idUser = idUser;
 		this.latitude = latitude;
@@ -63,27 +57,27 @@ public class Location implements Serializable {
 		this.idUser = idUser;
 	}
 
-	public float getLatitude() {
+	public Float getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(float latitude) {
+	public void setLatitude(Float latitude) {
 		this.latitude = latitude;
 	}
 
-	public float getLongitude() {
+	public Float getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(float longitude) {
+	public void setLongitude(Float longitude) {
 		this.longitude = longitude;
 	}
 
-	public int getSpeed() {
+	public Integer getSpeed() {
 		return speed;
 	}
 
-	public void setSpeed(int speed) {
+	public void setSpeed(Integer speed) {
 		this.speed = speed;
 	}
 

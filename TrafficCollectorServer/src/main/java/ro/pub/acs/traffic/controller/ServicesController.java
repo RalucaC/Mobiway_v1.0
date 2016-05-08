@@ -33,6 +33,7 @@ import ro.pub.acs.traffic.model.JourneyData;
 import ro.pub.acs.traffic.model.Location;
 import ro.pub.acs.traffic.model.Place;
 import ro.pub.acs.traffic.model.User;
+import ro.pub.acs.traffic.model.Policy;
 import ro.pub.acs.traffic.model.UserContact;
 import ro.pub.acs.traffic.utils.Constants;
 
@@ -473,7 +474,9 @@ public class ServicesController {
 		    	
 		    }            
 		} catch (Exception exception) {
-		    exception.printStackTrace();
+			// Request can fail for a number of reasons
+			// Mainly if the data is not available for the specified coordinates
+			// exception.printStackTrace();
 		}
 		
 		return routePoints;

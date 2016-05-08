@@ -30,10 +30,8 @@ CREATE TABLE `journey` (
   KEY `id_user` (`id_user`),
   KEY `id_user_2` (`id_user`),
   CONSTRAINT `journey_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=255 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=300 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `journey_data`
@@ -45,17 +43,16 @@ DROP TABLE IF EXISTS `journey_data`;
 CREATE TABLE `journey_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `journey_id` int(11) NOT NULL,
-  `latitude` float(10,6) NOT NULL,
-  `longitude` float(10,6) NOT NULL,
-  `speed` int(11) NOT NULL,
+  `latitude` float(10,6) DEFAULT NULL,
+  `longitude` float(10,6) DEFAULT NULL,
+  `speed` int(11) DEFAULT NULL,
   `timestamp` datetime NOT NULL,
   `osm_way_id` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `journey_id` (`journey_id`),
   CONSTRAINT `journey_data_ibfk_1` FOREIGN KEY (`journey_id`) REFERENCES `journey` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) EENGINE=InnoDB AUTO_INCREMENT=1082 DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB AUTO_INCREMENT=1213 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
--- --------------------------------------------------------
 
 --
 -- Table structure for table `location`
@@ -66,15 +63,14 @@ DROP TABLE IF EXISTS `location`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `location` (
   `id_user` int(11) NOT NULL,
-   `latitude` float(10,6) DEFAULT NULL,
-   `longitude` float(10,6) DEFAULT NULL,
-   `speed` int(11) DEFAULT NULL,
-   `timestamp` datetime DEFAULT NULL,
-   PRIMARY KEY (`id_user`),
-   CONSTRAINT `location_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  `latitude` float(10,6) DEFAULT NULL,
+  `longitude` float(10,6) DEFAULT NULL,
+  `speed` int(11) DEFAULT NULL,
+  `timestamp` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_user`),
+  CONSTRAINT `location_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
--- --------------------------------------------------------
 
 --
 -- Table structure for table `policy`
@@ -115,7 +111,6 @@ CREATE TABLE `user` (
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
--- --------------------------------------------------------
 
 --
 -- Table structure for table `user_contact`
@@ -137,10 +132,9 @@ CREATE TABLE `user_contact` (
   CONSTRAINT `user_contact_ibfk_2` FOREIGN KEY (`id_friend_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
- 
 
 --
---Table structure for table `user_policy`
+-- Table structure for table `user_policy`
 --
 
 DROP TABLE IF EXISTS `user_policy`;
@@ -159,8 +153,6 @@ CREATE TABLE `user_policy` (
 ) ENGINE=InnoDB AUTO_INCREMENT=203 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

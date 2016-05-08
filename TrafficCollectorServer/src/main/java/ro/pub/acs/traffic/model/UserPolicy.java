@@ -1,10 +1,8 @@
-package ro.pub.acs.mobiway.model;
+package ro.pub.acs.traffic.model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import javax.xml.bind.annotation.*;
 
 @Entity
 @Table(name = "user_policy")
