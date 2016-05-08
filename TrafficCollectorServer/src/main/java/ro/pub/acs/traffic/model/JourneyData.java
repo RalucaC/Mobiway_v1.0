@@ -30,6 +30,11 @@ public class JourneyData implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date timestamp;
 	
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "timestamp_unix")
+	private Integer timestampUnix;
+	
 	@Lob
 	@Column(name = "osm_way_id", nullable=true)
 	private String osmWayId;
