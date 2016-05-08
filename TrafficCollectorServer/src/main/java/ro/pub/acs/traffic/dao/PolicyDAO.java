@@ -1,7 +1,7 @@
-package ro.pub.acs.mobiway.dao;
+package ro.pub.acs.traffic.dao;
 
 import java.util.List;
-import ro.pub.acs.mobiway.model.*;
+import ro.pub.acs.traffic.model.*;
 
 public interface PolicyDAO {
 	public List<Policy> list(String appId);
