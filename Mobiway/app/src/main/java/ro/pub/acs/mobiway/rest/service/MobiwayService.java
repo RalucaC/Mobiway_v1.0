@@ -152,7 +152,7 @@ public interface MobiwayService {
             "Content-Type: application/json",
             "Accept: application/json"
     })
-    @POST(Constants.URL_GET_ROUTE_FROM_MAPZEN + "/{routeType}")
+    @POST(Constants.URL_GET_ROUTE + "/{routeType}")
     List<Location> getRoute(@Body ArrayList<Location> locations);
 
     @Headers({
