@@ -6,8 +6,7 @@
  */
 
 /* Constants */
-//define("PG_DB",   "mobiway_pgrouting");
-define("PG_DB",   "gisdb");
+define("PG_DB",   "mobiway_pgrouting");
 define("PG_HOST", "127.0.0.1");
 define("PG_USER", "postgres");
 define("PG_PASS", "gr0k");
@@ -35,6 +34,9 @@ function findNearestEdge($dbcon, $lonlat) {
                   ORDER BY dist LIMIT 1";
 
    $query = pg_query($dbcon, $sql);
+   
+   var_dump($dbcon);
+
 
    $edge['gid']      = pg_fetch_result($query, 0, 0);
    $edge['source']   = pg_fetch_result($query, 0, 1);
@@ -72,7 +74,7 @@ function doRoute($dbcon, $startPoint, $endPoint, $hour) {
 
     // Perform database query to get road geometry
     $result = pg_query($dbcon, $sql);
-
+var_dump($result);
     while ($row = pg_fetch_row($result)) {
         $way_geom = $row[0];
         getPointArrayFromLinestring($way_geom);
@@ -93,7 +95,7 @@ try {
         $startPoint = array(26.0272261, 44.48998463);
         $endPoint   = array(26.1105126, 44.45294373);
      */
-
+var_dump($dbcon);
     $src_arg = htmlspecialchars($_GET["src"]);
     $dst_arg = htmlspecialchars($_GET["dst"]);
     $hour = htmlspecialchars($_GET["hour"]);
