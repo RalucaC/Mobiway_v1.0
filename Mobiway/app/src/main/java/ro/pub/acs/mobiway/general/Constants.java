@@ -51,7 +51,7 @@ public abstract class Constants {
     public static final String URL_NEW_JOURNEY = "/location/newJourney";
 
     /* SharedPreferences file name */
-    public static final String PREF_NAME = "trafficCollectorPreferences";
+    public static final String PREF_NAME = "mobiwayPreferences";
 
     /* All Shared Preferences Keys */
     public static final String IS_LOGGED_IN = "isLoggedIn";
