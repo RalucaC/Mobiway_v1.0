@@ -321,31 +321,7 @@ public class ServicesController {
 				journeyData.setTimestamp(currentDate);
 				
 				/* Set the OSM id (used later)*/
-				String osmId = null;
-				try {
-					HttpClient httpClient = new DefaultHttpClient();
-					
-					/* Perform Reverse Geocoding for a location */
-					StringBuilder url = new StringBuilder();
-					url.append(Constants.URL_NOMINATIM_API_LOCAL);
-					// url.append(Constants.URL_NOMINATIM_API);
-					// url.append("/reverse?format=json&zoom=18&addressdetails=0");
-					url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
-					url.append("&lat=" + location.getLatitude());
-					url.append("&lon=" + location.getLongitude());
-					
-					HttpGet httpGet = new HttpGet(url.toString());
-					HttpResponse httpGetResponse = httpClient.execute(httpGet);
-					HttpEntity httpGetEntity = httpGetResponse.getEntity();
-					
-					if (httpGetEntity != null) {  
-						String response = EntityUtils.toString(httpGetEntity);
-						JSONObject nodeData = new JSONObject(response);
-						osmId = nodeData.getString("osm_id");
-					}
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
+				String osmId = getOSMId(locationUser);
 				
 				journeyData.setOsmWayId(osmId);
 				journeyDataDAO.add(journeyData);
@@ -355,6 +331,38 @@ public class ServicesController {
 		}
 
 		return false;
+	}
+	
+	private String getOSMId(Location location) {
+		/* Set the OSM id (used later)*/
+		String osmId = null;
+		try {
+			HttpClient httpClient = new DefaultHttpClient();
+
+			/* Perform Reverse Geocoding for a location */
+			StringBuilder url = new StringBuilder();
+			url.append(Constants.URL_NOMINATIM_API_LOCAL);
+			// url.append(Constants.URL_NOMINATIM_API);
+			// url.append("/reverse?format=json&zoom=18&addressdetails=0");
+			url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
+			url.append("&lat=" + location.getLatitude());
+			url.append("&lon=" + location.getLongitude());
+
+			HttpGet httpGet = new HttpGet(url.toString());
+			HttpResponse httpGetResponse = httpClient.execute(httpGet);
+			HttpEntity httpGetEntity = httpGetResponse.getEntity();
+
+			if (httpGetEntity != null) {
+				String response = EntityUtils.toString(httpGetEntity);
+				JSONObject nodeData = new JSONObject(response);
+				osmId = nodeData.getString("osm_id");
+			}
+		} catch (Exception exception) {
+			// Request can fail for a number of reasons
+			// Mainly if the data is not available for the specified coordinates
+			// exception.printStackTrace();
+		}
+		return osmId;
 	}
 
 	@RequestMapping(value = "/social/getFriendsNames", method = RequestMethod.GET)
