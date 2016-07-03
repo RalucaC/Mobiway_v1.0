@@ -1,5 +1,9 @@
 package ro.pub.acs.mobiway.controller;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import org.apache.http.HttpEntity;
@@ -364,6 +368,35 @@ public class ServicesController {
 		}
 		return osmId;
 	}
+	
+	private void saveRouteToFile(String tag, List<Location> routePoints, Calendar start, Calendar end) {
+		String logPath = "/var/log/routes/";
+
+		try {
+			File file = new File(logPath + new Date().getTime());
+
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+
+			bw.write("Route tag: " + tag);
+			bw.newLine();
+
+			for (Location loc: routePoints) {
+				bw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + getOSMId(loc));
+				bw.newLine();
+			}
+
+			bw.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@RequestMapping(value = "/social/getFriendsNames", method = RequestMethod.GET)
 	public @ResponseBody List<User> getFriendsNames(
@@ -511,6 +544,9 @@ public class ServicesController {
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 		System.out.println("get PG route------------");
+		
+Calendar start = Calendar.getInstance();
+		
 		try {
 			Calendar rightNow = Calendar.getInstance();
 			int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -547,8 +583,10 @@ public class ServicesController {
 			// exception.printStackTrace();
 		}
 
+Calendar end = Calendar.getInstance();
+		
 		if (Constants.DEBUG_MODE) {
-//			saveRouteToFile("pgRouting", routePoints);
+			saveRouteToFile("pgRouting", routePoints, start, end);
 		}
 
 		return routePoints;
@@ -561,6 +599,9 @@ public class ServicesController {
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 		System.out.println("get route------------");
+		
+Calendar start = Calendar.getInstance();		
+		
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
@@ -601,6 +642,13 @@ public class ServicesController {
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
 		}
+		
+Calendar end = Calendar.getInstance();
+		
+		if (Constants.DEBUG_MODE) {
+			saveRouteToFile("OSRM", routePoints, start, end);
+		}
+
 		
 		return routePoints;
 	}
