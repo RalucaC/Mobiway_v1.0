@@ -58,13 +58,6 @@ public class JourneyDataDAOImpl implements JourneyDataDAO {
 
 		return journeyData.getId().intValue();
 	}
-	
-	@Override
-	//	@Transactional
-		public void add2(JourneyData journeyData) {
-			Session session = sessionFactory.getCurrentSession();
-			session.saveOrUpdate(journeyData);
-		}
 
 	@Override
 	@Transactional
