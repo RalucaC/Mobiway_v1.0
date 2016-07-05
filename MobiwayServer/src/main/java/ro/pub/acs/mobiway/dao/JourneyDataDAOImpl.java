@@ -8,9 +8,17 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.mobiway.model.*;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import ro.pub.acs.mobiway.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+//@EnableTransactionManagement
 public class JourneyDataDAOImpl implements JourneyDataDAO {
 	private static final long serialVersionUID = 1L;
+	
+	@Autowired
 	private SessionFactory sessionFactory;
 
 	public JourneyDataDAOImpl(SessionFactory sessionFactory) {
@@ -50,6 +58,13 @@ public class JourneyDataDAOImpl implements JourneyDataDAO {
 
 		return journeyData.getId().intValue();
 	}
+	
+	@Override
+	//	@Transactional
+		public void add2(JourneyData journeyData) {
+			Session session = sessionFactory.getCurrentSession();
+			session.saveOrUpdate(journeyData);
+		}
 
 	@Override
 	@Transactional

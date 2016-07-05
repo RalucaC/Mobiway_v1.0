@@ -10,8 +10,11 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.mobiway.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserDAOImpl implements UserDAO {
+	
+	@Autowired
 	private SessionFactory sessionFactory;
 
 	public UserDAOImpl(SessionFactory sessionFactory) {

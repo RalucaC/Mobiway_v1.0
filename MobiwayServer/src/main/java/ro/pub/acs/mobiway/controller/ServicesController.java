@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -45,6 +47,7 @@ import ro.pub.acs.mobiway.model.UserPolicy;
 import ro.pub.acs.mobiway.utils.Constants;
 
 @RestController
+@Transactional
 @RequestMapping("/services")
 public class ServicesController {
 
@@ -68,6 +71,76 @@ public class ServicesController {
 	
 	@Autowired
 	private UserPolicyDAO userPolicyDAO;
+	
+	@Autowired
+	private TrafficEventDAO trafficEventDAO;
+
+	@Autowired
+	private UserEventDAO userEventDAO;
+
+	@SuppressWarnings({ "deprecation", "resource" })
+	@RequestMapping(value = "/location/getEvent/{latitude}/{longitude}", method = RequestMethod.GET)
+	public @ResponseBody List<UserEvent> getEvent(
+			@PathVariable Integer idUser,
+			@PathVariable Float latitude,
+			@PathVariable Float longitude,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		User user = userDAO.get(authToken, idUser);
+		if (user == null) {
+			return null;
+		}
+
+		Location location = new Location();
+		location.setLatitude(latitude);
+		location.setLongitude(longitude);
+
+		String osmId = getOSMId(location);
+		List<UserEvent> event = userEventDAO.get(osmId);
+
+		return event;
+	}
+	
+	@SuppressWarnings({ "deprecation", "resource" })
+	@RequestMapping(value = "/location/postEvent/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}/{latitude}/{longitude}/{osmWayId}", method = RequestMethod.PUT)
+	public @ResponseBody boolean postEvent(
+			@PathVariable String eventName,
+			@PathVariable Float distance,
+			@PathVariable Float timeSinceEvent,
+			@PathVariable Float spaceAccuracy,
+			@PathVariable Float timeAccuracy,
+			@PathVariable Float latitude,
+			@PathVariable Float longitude,
+			@PathVariable String osmWayId,
+			@RequestBody Location location,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		User user = userDAO.get(authToken, location.getIdUser());
+		if (user == null) {
+			return false;
+		}
+
+		TrafficEvent te = trafficEventDAO.get(eventName);
+		if (te == null) {
+			return false;
+		}
+
+		Date currentDate = new Date();
+
+		UserEvent event = new UserEvent();
+		event.setIdUser(user);
+		event.setIdTrafficEvent(te);
+		event.setTimestamp(currentDate);
+		event.setDistance(distance);
+		event.setSpaceAccuracy(spaceAccuracy);
+		event.setTimeAccuracy(timeAccuracy);
+		event.setLatitude(latitude);
+		event.setLongitude(longitude);
+		event.setOsmWayId(osmWayId);
+		userEventDAO.add(event);
+
+		return true;
+	}
 	
 	@RequestMapping(value = "/checkServerConn", method = RequestMethod.GET)
 	public @ResponseBody boolean checkServerConn() {
@@ -370,6 +443,7 @@ public class ServicesController {
 	}
 	
 	private void saveRouteToFile(String tag, List<Location> routePoints, Calendar start, Calendar end) {
+		
 		String logPath = "/var/log/routes/";
 
 		try {

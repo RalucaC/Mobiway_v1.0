@@ -53,7 +53,7 @@ public abstract class Constants {
     /* SharedPreferences file name */
     public static final String PREF_NAME = "mobiwayPreferences";
 
-    /* All Shared Preferences Keys */ 
+    /* All Shared Preferences Keys */
     public static final String IS_LOGGED_IN = "isLoggedIn";
     public static final String KEY_USER_ID = "userId";
     public static final String KEY_EMAIL = "emailAddress";
