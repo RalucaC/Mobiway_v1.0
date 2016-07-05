@@ -15,17 +15,21 @@ public class UserEventDAOImpl implements UserEventDAO {
 
 	@Override
 	@Transactional
-	public UserEvent get(int id) {
+	public List<UserEvent> get(int id) {
 		 Criteria criteria = sessionFactory.getCurrentSession()
 				 .createCriteria(UserEvent.class)
 				 .add(Restrictions.eq("id", id));
 
-		 Object result = criteria.uniqueResult();
-		 UserEvent event = null;
-		 if (result != null)
-			 event = (UserEvent) result;
+		 List<Object> result = criteria.list();
+		 List<UserEvent> listEvents = new ArrayList<UserEvent>();
 
-		 return event;
+		 for (Object event : result) {
+			 UserEvent userEvent = (UserEvent) event;
+			 listEvents.add(userEvent);
+		 }
+		
+
+		 return listEvents;
 	 }
 
 	@Override
