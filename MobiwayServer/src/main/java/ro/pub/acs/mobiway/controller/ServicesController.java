@@ -33,8 +33,10 @@ import ro.pub.acs.mobiway.dao.JourneyDAO;
 import ro.pub.acs.mobiway.dao.JourneyDataDAO;
 import ro.pub.acs.mobiway.dao.LocationDAO;
 import ro.pub.acs.mobiway.dao.PolicyDAO;
+import ro.pub.acs.mobiway.dao.TrafficEventDAO;
 import ro.pub.acs.mobiway.dao.UserContactDAO;
 import ro.pub.acs.mobiway.dao.UserDAO;
+import ro.pub.acs.mobiway.dao.UserEventDAO;
 import ro.pub.acs.mobiway.dao.UserPolicyDAO;
 import ro.pub.acs.mobiway.model.Journey;
 import ro.pub.acs.mobiway.model.JourneyData;
@@ -42,10 +44,13 @@ import ro.pub.acs.mobiway.model.Location;
 import ro.pub.acs.mobiway.model.Place;
 import ro.pub.acs.mobiway.model.User;
 import ro.pub.acs.mobiway.model.Policy;
+import ro.pub.acs.mobiway.model.TrafficEvent;
 import ro.pub.acs.mobiway.model.UserContact;
+import ro.pub.acs.mobiway.model.UserEvent;
 import ro.pub.acs.mobiway.model.UserPolicy;
 import ro.pub.acs.mobiway.utils.Constants;
 
+@SuppressWarnings("deprecation")
 @RestController
 @Transactional
 @RequestMapping("/services")

@@ -1,7 +1,6 @@
 package ro.pub.acs.mobiway.dao;
 
 import java.io.Serializable;
-import java.util.*;
 
 import ro.pub.acs.mobiway.model.*;
 

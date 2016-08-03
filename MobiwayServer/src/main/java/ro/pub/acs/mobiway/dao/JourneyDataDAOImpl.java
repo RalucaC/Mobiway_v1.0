@@ -8,11 +8,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.mobiway.model.*;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import ro.pub.acs.mobiway.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 //@EnableTransactionManagement
 public class JourneyDataDAOImpl implements JourneyDataDAO {
@@ -39,6 +35,7 @@ public class JourneyDataDAOImpl implements JourneyDataDAO {
 		return journeyData;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public List<JourneyData> getByJourneyId(Journey journeyId) {
