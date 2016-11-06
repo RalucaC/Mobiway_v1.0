@@ -68,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private static List<User> friendsNames = null;
     private static List<ro.pub.acs.mobiway.rest.model.Location> friendsLocations = null;
     private static boolean firstLocation = true;
+
     private SharedPreferencesManagement spm;
     private GoogleMap googleMap = null; /* Might be null if Google Play services APK is not available. */
     private GoogleApiClient googleApiClient = null;
@@ -77,6 +78,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private Marker marker;
     private String destinationTitle;
     private LatLng latLngMarker;
+
 
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayList<String> places;
@@ -116,10 +118,17 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                     /* getRoute -> OSRM getRoutePG -> PGRouting */
 
                     if (routingEngine.equalsIgnoreCase("osrm")) {
+
+                        Log.d("ro.pub.acs.mobiway", location1.toString() + "---" + location2.toString());
+
                         List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
                         showRouteOnMap(result);
                     } else if (routingEngine.equalsIgnoreCase("pgrouting")) {
+
+
                         List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
+
+                        Log.d("---------------00000", result.toString());
                         showRouteOnMap(result);
                     }
 
@@ -135,7 +144,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // Logging config
         Log.i(TAG, "onCreate() callback method was invoked");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         spm = new SharedPreferencesManagement(getApplicationContext());
@@ -204,6 +216,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     protected void onStart() {
         Log.i(TAG, "onStart() callback method was invoked");
+
         super.onStart();
 
         checkServerStatus();
@@ -225,7 +238,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onStop() {
+
         Log.i(TAG, "onStop() callback method was invoked");
+
         stopLocationUpdates();
         if (googleApiClient != null && googleApiClient.isConnected()) {
             googleApiClient.disconnect();
@@ -235,20 +250,26 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onDestroy() {
+
         Log.i(TAG, "onDestroy() callback method was invoked");
+
         googleApiClient = null;
         super.onDestroy();
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+
         Log.i(TAG, "onSaveInstanceState() callback method was invoked");
+
         super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     protected void onResume() {
+
         Log.i(TAG, "onResume() callback method was invoked");
+
         super.onResume();
     }
 
@@ -453,7 +474,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(Bundle connectionHint) {
+
         Log.i(TAG, "onConnected() callback method has been invoked");
+
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         oldLocation = lastLocation;
         startLocationUpdates();
@@ -512,7 +535,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.v(TAG, "onLocationChanged() callback method has been invoked");
+
+        Log.i(TAG, "onLocationChanged() callback method has been invoked");
+
         oldLocation = lastLocation;
         lastLocation = location;
         navigateToLocation(lastLocation);
@@ -565,8 +590,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                     friendsNames = restClient.getApiService().getFriendsNames();
                     friendsLocations = restClient.getApiService().getFriendsLocations();
 
-                    Log.e(TAG, "friends: " + friendsNames);
-                    Log.e(TAG, "friends: " + friendsLocations);
+                    Log.i(TAG, "Friends: " + friendsNames);
+                    Log.i(TAG, "Friends locations: " + friendsLocations);
 
                     showFriendsOnMap();
                 } catch (Exception e) {
@@ -635,6 +660,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void showRouteOnMap(final List<ro.pub.acs.mobiway.rest.model.Location> points) {
+
+        Log.d("---------------", points.toString());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

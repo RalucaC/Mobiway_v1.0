@@ -141,18 +141,18 @@ public interface MobiwayService {
     @POST(Constants.URL_NEW_JOURNEY)
     boolean newJourney(@Body Integer userId);
 
-    /*@Headers({
-            "Content-Type: application/json",
-            "Accept: application/json"
-    })
-    @POST(Constants.URL_GET_ROUTE + "/{routeType}")
-    List<Location> getRoute(@Body ArrayList<Location> locations, @Path("routeType") String routeType);
-*/
+//    @Headers({
+//            "Content-Type: application/json",
+//            "Accept: application/json"
+//    })
+//    @POST(Constants.URL_GET_ROUTE + "/{routeType}")
+//    List<Location> getRoute(@Body ArrayList<Location> locations, @Path("routeType") String routeType);
+
     @Headers({
             "Content-Type: application/json",
             "Accept: application/json"
     })
-    @POST(Constants.URL_GET_ROUTE + "/{routeType}")
+    @POST(Constants.URL_GET_ROUTE)
     List<Location> getRoute(@Body ArrayList<Location> locations);
 
     @Headers({

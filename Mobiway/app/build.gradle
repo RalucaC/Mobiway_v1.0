@@ -24,11 +24,12 @@ android {
 
     defaultConfig {
         applicationId "ro.pub.acs.mobiway"
+        multiDexEnabled true
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-//
+
     }
     buildTypes {
         release {
@@ -43,6 +44,7 @@ android {
         }
     }
 }
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.0.0'
@@ -52,4 +54,8 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'commons-codec:commons-codec:1.10'
+    compile files('libs/acra-4.6.2.jar')
+    compile 'com.android.support:support-annotations:23.0.0'
+    compile "com.android.support:support-v4:23.0.0"
+
 }

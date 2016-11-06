@@ -1,0 +1,5 @@
+<root>
+    <item name='org.acra.annotation.ReportsCrashes'>
+        <annotation name='java.lang.annotation.Deprecated' />
+    </item>
+</root>
