@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 
+import org.acra.ACRA;
+
 import java.util.Locale;
 
 import ro.pub.acs.mobiway.R;
@@ -32,6 +34,9 @@ public class AuthenticationActivity extends ActionBarActivity implements Fragmen
     protected void onCreate(Bundle savedInstanceState) {
 
         Log.d(TAG, "===  onCreate === ");
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("AuthenticationActivity.onCreate()", "method has been invoked");
 
         super.onCreate(savedInstanceState);
 
@@ -58,11 +63,19 @@ public class AuthenticationActivity extends ActionBarActivity implements Fragmen
         sharedPreferencesManagement.setFirstTimeUse(false);
         /* verify if user is logged in */
         if (sharedPreferencesManagement.isLoggedIn()) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("AuthenticationActivity.onCreate():alreadyLoggedIn", "user is already logged in");
+
             Log.d(TAG, "user is already logged in");
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
         } else {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("AuthenticationActivity.onCreate():logIn", "going to log in");
+
             Log.d(TAG, "going to log in");
             setContentView(R.layout.activity_authentication);
 
@@ -85,12 +98,20 @@ public class AuthenticationActivity extends ActionBarActivity implements Fragmen
 
     @Override
     public void onBackStackChanged() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("AuthenticationActivity.onBackStackChanged()", "method has been invoked");
+
         boolean canback = getSupportFragmentManager().getBackStackEntryCount() > 0;
         getSupportActionBar().setDisplayHomeAsUpEnabled(canback);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("AuthenticationActivity.onOptionsItemSelected()", "method has been invoked");
+
         switch (item.getItemId()) {
             case android.R.id.home: {
                 FragmentManager fm = getSupportFragmentManager();

@@ -26,6 +26,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.acra.ACRA;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
@@ -65,6 +66,10 @@ public class LoginFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick()", "method has been invoked");
+
             switch (v.getId()) {
                 case R.id.login_button: {
                     authErrorTextView.setVisibility(View.INVISIBLE);
@@ -121,6 +126,10 @@ public class LoginFragment extends Fragment {
                                     dismissDialog();
                                 }
                             } catch (Exception e) {
+
+                                //ACRA log
+                                ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick():error", e.toString());
+
                                 e.printStackTrace();
                                 dismissDialog();
                             }
@@ -165,6 +174,10 @@ public class LoginFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle state) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("LoginFragment.onCreateView()", "method has been invoked");
+
         Log.d(TAG, "onCreateView");
 
         callbackManager = CallbackManager.Factory.create();
@@ -244,6 +257,10 @@ public class LoginFragment extends Fragment {
                                                     }
                                                     Log.e(TAG, "authenticatedUser: " + result);
                                                 } catch (Exception e) {
+
+                                                    //ACRA log
+                                                    ACRA.getErrorReporter().putCustomData("LoginFragment.onCreateView():error1", e.toString());
+
                                                     e.printStackTrace();
                                                     LoginManager.getInstance().logOut();
                                                     dismissDialog();
@@ -252,6 +269,10 @@ public class LoginFragment extends Fragment {
                                         });
                                         thread.start();
                                     } catch (JSONException e) {
+
+                                        //ACRA log
+                                        ACRA.getErrorReporter().putCustomData("LoginFragment.onCreateView():error2", e.toString());
+
                                         e.printStackTrace();
                                         dismissDialog();
                                     }
@@ -273,6 +294,10 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onError(FacebookException exception) {
+
+                //ACRA log
+                ACRA.getErrorReporter().putCustomData("LoginFragment.onError():FBError", exception.toString());
+
                 Log.d("FB ERROR", exception.toString());
             }
         });
@@ -282,6 +307,10 @@ public class LoginFragment extends Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("LoginFragment.onActivityCreated()", "method has been invoked");
+
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
         Button loginButton = (Button) getActivity().findViewById(R.id.login_button);

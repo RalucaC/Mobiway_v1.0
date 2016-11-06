@@ -927,6 +927,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     private boolean checkNetworkConnectivity() {
         if (!Util.isNetworkAvailable(this)) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("MainActivity.checkNetworkConnectivity()", "No network connectivity");
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -960,6 +964,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         if (!canConnect) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("MainActivity.checkServerConnectivity()", "No server connectivity");
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.acra.ACRA;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -52,6 +53,10 @@ public class CreateAccountUserFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("CreateAccountButtonListener.onClick()", "method has been invoked");
+
             switch (v.getId()) {
                 case R.id.create_account_next_button: {
                     emailAddress = emailEditText.getText().toString();
@@ -134,6 +139,10 @@ public class CreateAccountUserFragment extends Fragment {
                                 }
                                 Log.e(TAG, "authenticatedUser: " + result);
                             } catch (Exception e) {
+
+                                //ACRA log
+                                ACRA.getErrorReporter().putCustomData("CreateAccountButtonListener.onClick():error", e.toString());
+
                                 e.printStackTrace();
                                 dismissDialog();
                             }
@@ -178,6 +187,10 @@ public class CreateAccountUserFragment extends Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("CreateAccountUserFragment.onActivityCreated()", "method has been invoked");
+
         super.onActivityCreated(savedInstanceState);
         Button nextButton = (Button) getActivity().findViewById(R.id.create_account_next_button);
         nextButton.setOnClickListener(buttonOnClickListener);
@@ -207,6 +220,10 @@ public class CreateAccountUserFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle bundle){
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("CreateAccountUserFragment.onSaveInstanceState()", "method has been invoked");
+
         Log.e("CreateAccount", "onSaveInstanceState" + bundle.toString());
 
         bundle.putString("firstName", firstnameEditText.getText().toString());

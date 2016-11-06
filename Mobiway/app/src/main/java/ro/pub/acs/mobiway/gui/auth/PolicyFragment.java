@@ -1,36 +1,30 @@
 package ro.pub.acs.mobiway.gui.auth;
 
-import android.app.ActionBar;
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import java.util.*;
+
+import org.acra.ACRA;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ro.pub.acs.mobiway.R;
-import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.general.Constants;
+import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.Policy;
 
@@ -61,7 +55,10 @@ public class PolicyFragment extends Fragment {
              policies = restClient.getApiService().getPolicyListApp(Constants.APP_NAME);
         } catch (Exception ex) {
 
-             ex.printStackTrace();
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("PolicyFragment.getPolicies():error", ex.toString());
+
+            ex.printStackTrace();
         }
 
         return policyConfig;
@@ -113,6 +110,10 @@ public class PolicyFragment extends Fragment {
             ll.addView(ck);
 
         } catch (Exception ex) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("PolicyFragment.createPolicyCheckBox():error", ex.toString());
+
             ex.printStackTrace();
         }
     }
@@ -141,6 +142,9 @@ public class PolicyFragment extends Fragment {
                     policies = restClient.getApiService().getPolicyListApp(Constants.APP_NAME);
                 } catch (Exception ex) {
 
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("PolicyFragment.createPoliciesList():error", ex.toString());
+
                     ex.printStackTrace();
                 }
 
@@ -155,6 +159,10 @@ public class PolicyFragment extends Fragment {
     private class AcceptPolicyButtonOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("AcceptPolicyButtonOnClickListener.onClick()", "method has been invoked");
+
             switch (v.getId()) {
                 case R.id.policy_accept_button: {
 
@@ -188,6 +196,9 @@ public class PolicyFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle state) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("PolicyFragment.onCreateView()", "method has been invoked");
 
         final View view = layoutInflater.inflate(R.layout.fragment_policy, container, false);
 

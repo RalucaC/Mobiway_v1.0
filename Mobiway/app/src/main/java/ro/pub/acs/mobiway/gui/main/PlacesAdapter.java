@@ -9,6 +9,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import org.acra.ACRA;
+
 import java.util.ArrayList;
 
 import ro.pub.acs.mobiway.R;
@@ -22,6 +24,10 @@ public class PlacesAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public Filter getFilter() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("PlacesAdapter.getFilter()", "method has been invoked");
+
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
@@ -65,6 +71,10 @@ public class PlacesAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("PlacesAdapter.getView()", "method has been invoked");
+
         View view;
 
         PlaceViewHolder placeViewHolder;
@@ -72,6 +82,10 @@ public class PlacesAdapter extends BaseAdapter implements Filterable {
         String place = (String)getItem(position);
 
         if (convertView == null) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("PlacesAdapter.getView():noContentView", "created a new view using PlaceViewHolder");
+
             view = layoutInflater.inflate(R.layout.place, parent, false);
             placeViewHolder = new PlaceViewHolder();
             placeViewHolder.placeInformationTextView = (TextView)view.findViewById(R.id.place_information_text_view);
