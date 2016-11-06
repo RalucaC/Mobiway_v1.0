@@ -17,7 +17,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
 @org.springframework.stereotype.Controller
-@RequestMapping(value = "/mobiway")
+@RequestMapping(value = "/traffic")
 public class MgmtAppController {
 
 	@Autowired

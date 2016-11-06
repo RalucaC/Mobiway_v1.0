@@ -20,12 +20,12 @@ service tomcat7 stop
 sleep 10
 
 # Remove existing assets (if any)
-rm -rf $webapps_dir/MobiwayServer
+rm -rf $webapps_dir/TrafficCollectorServer
 
-cp ./target/MobiwayServer-1.0.0-BUILD-SNAPSHOT.war MobiwayServer.war
+cp ./target/TrafficCollectorServer-1.0.0-BUILD-SNAPSHOT.war TrafficCollectorServer.war
 
 # Copy WAR file into place
-mv MobiwayServer.war $webapps_dir
+mv TrafficCollectorServer.war $webapps_dir
 
 # Restart tomcat
 service tomcat7 restart
