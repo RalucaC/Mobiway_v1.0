@@ -3,6 +3,8 @@ package ro.pub.acs.mobiway.core;
 import android.app.Activity;
 import com.google.android.gms.maps.model.*;
 
+import org.acra.ACRA;
+
 public class RoutingHelper {
 
     private boolean getSrcFromGps;
@@ -31,6 +33,10 @@ public class RoutingHelper {
     }
 
     public void selectPoint(LatLng selectedPoint, Marker selectedMarker) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("RoutingHelper.selectPoint()", "method has been invoked");
+
         if (userSelecteMarker != null) {
             userSelecteMarker.setVisible(false);
         }
@@ -40,6 +46,10 @@ public class RoutingHelper {
     }
 
     public void selectSrc() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("RoutingHelper.selectSrc()", "method has been invoked");
+
         if (userSelectedLocation != null) {
 
             if (srcMarker != null) {
@@ -56,6 +66,10 @@ public class RoutingHelper {
     }
 
     public void selectDst() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("RoutingHelper.selectDst()", "method has been invoked");
+
         if (userSelectedLocation != null) {
 
             if (dstMarker != null) {
@@ -79,6 +93,10 @@ public class RoutingHelper {
     }
 
     public void clear() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("RoutingHelper.clear()", "method has been invoked");
+
         srcLocation = null;
         if (srcMarker != null) {
             srcMarker.setVisible(false);

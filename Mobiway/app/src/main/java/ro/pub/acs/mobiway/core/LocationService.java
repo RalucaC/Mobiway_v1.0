@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 
+import org.acra.ACRA;
+
 public class LocationService extends Service implements LocationListener {
 
     private final Context mContext;
@@ -44,6 +46,10 @@ public class LocationService extends Service implements LocationListener {
     }
 
     public Location getLocation() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("LocationService.getLocation()", "method has been invoked");
+
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(Context.LOCATION_SERVICE);
@@ -57,6 +63,10 @@ public class LocationService extends Service implements LocationListener {
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
             if (!isGPSEnabled && !isNetworkEnabled) {
+
+                //ACRA log
+                ACRA.getErrorReporter().putCustomData("LocationService.getLocation():warning", "GPS and network are not enabled");
+
                 // No network provider is enabled
             } else {
                 this.canGetLocation = true;
@@ -95,6 +105,10 @@ public class LocationService extends Service implements LocationListener {
                 }
             }
         } catch (Exception e) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("LocationService.getLocation():error", e.toString());
+
             e.printStackTrace();
         }
 
@@ -153,6 +167,10 @@ public class LocationService extends Service implements LocationListener {
      * On pressing the Settings button it will launch Settings Options.
      */
     public void showSettingsAlert() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("LocationService.showSettingsAlert()", "method has been invoked");
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 
         // Setting Dialog Title

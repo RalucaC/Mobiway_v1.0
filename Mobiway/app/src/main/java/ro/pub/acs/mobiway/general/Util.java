@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import org.acra.ACRA;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,6 +71,10 @@ public class Util {
     }
 
     public static ArrayList<String> readContacts(Context context, ArrayList<String> phoneNumbers) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("Util.readContacts()", "method has been invoked");
+
         ArrayList<String> usersFromAgenda = new ArrayList<String>();
         ContentResolver contentResolver = context.getContentResolver();
         Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null,

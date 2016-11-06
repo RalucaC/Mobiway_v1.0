@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import org.acra.ACRA;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,6 +55,10 @@ public class SharedPreferencesManagement {
                                    String lastName, String email, String password, String firstName,
                                    String token,
                                    long expiresOn) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SharedPreferencesManagement.createLoginSession()", "method has been invoked");
+
     	/* create new session */
         editor.putBoolean(Constants.IS_LOGGED_IN, true);
         
@@ -191,6 +197,10 @@ public class SharedPreferencesManagement {
     }
 
     public void inspectSettings() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SharedPreferencesManagement.inspectSettings()", "method has been invoked");
+
         Map<String, ?> allEntries = pref.getAll();
 
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
@@ -207,6 +217,10 @@ public class SharedPreferencesManagement {
      * Clear session details
      */
     public void logoutUser() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SharedPreferencesManagement.logoutUser()", "method has been invoked");
+
         /* First clear all data from Shared Preferences */
         editor.remove(Constants.IS_LOGGED_IN);
         editor.remove(Constants.KEY_USER_ID);
