@@ -7,12 +7,18 @@ import android.view.*;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 
+import org.acra.ACRA;
+
 import ro.pub.acs.mobiway.R;
 
 public class SettingsActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsActivity.onCreate()", "method has been invoked");
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_settings);
@@ -27,6 +33,10 @@ public class SettingsActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsActivity.onCreateOptionsMenu()", "method has been invoked");
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_settings, menu);
         return true;
@@ -37,6 +47,10 @@ public class SettingsActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsActivity.onOptionsItemSelected()", "method has been invoked");
+
         int id = item.getItemId();
 
         switch (id) {
@@ -51,6 +65,10 @@ public class SettingsActivity extends ActionBarActivity {
 
     @Override
     protected void onStart() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsActivity.onStart()", "method has been invoked");
+
         super.onStart();
         GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }

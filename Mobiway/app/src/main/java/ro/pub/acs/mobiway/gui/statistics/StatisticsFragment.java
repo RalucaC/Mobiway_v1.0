@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceFragment;
 
+import org.acra.ACRA;
+
 import java.util.List;
 
 import ro.pub.acs.mobiway.R;
@@ -17,6 +19,10 @@ public class StatisticsFragment extends PreferenceFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("StatisticsFragment.onCreate()", "method has been invoked");
+
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_statistics);
 
@@ -40,6 +46,10 @@ public class StatisticsFragment extends PreferenceFragment {
                         });
                     }
                 } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("StatisticsFragment.onCreate():error", e.toString());
+
                     e.printStackTrace();
                 }
             }

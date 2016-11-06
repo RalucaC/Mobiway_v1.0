@@ -11,6 +11,8 @@ import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.util.Log;
 
+import org.acra.ACRA;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +33,10 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     private void setAcceptedPolicies() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.setAcceptedPolicies()", "method has been invoked");
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -44,6 +50,10 @@ public class SettingsFragment extends PreferenceFragment {
                     restClient.getApiService().acceptUserPolicyListForApp(
                             spm.getAuthUserId(), Constants.APP_NAME, policyList);
                 } catch (Exception ex) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("SettingsFragment.setAcceptedPolicies():error", ex.toString());
+
                     ex.printStackTrace();
                 }
             }
@@ -53,6 +63,10 @@ public class SettingsFragment extends PreferenceFragment {
 
 
     private void populatePolicyList(List<Policy> appPolicies) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.populatePolicyList()", "method has been invoked");
+
         PreferenceScreen screen = this.getPreferenceScreen();
         PreferenceCategory policyCat = (PreferenceCategory) findPreference(getString(R.string.policy_settings));
         Set<String> acceptedPolicies = spm.getUserPolicies();
@@ -69,6 +83,9 @@ public class SettingsFragment extends PreferenceFragment {
 
     private void updatePolicyList() {
 
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.updatePolicyList()", "method has been invoked");
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -77,6 +94,10 @@ public class SettingsFragment extends PreferenceFragment {
                     RestClient restClient = new RestClient();
                     policies = restClient.getApiService().getPolicyListApp(Constants.APP_NAME);
                 } catch (Exception ex) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("SettingsFragment.updatePolicyList():error", ex.toString());
+
                     ex.printStackTrace();
                 }
                 populatePolicyList(policies);
@@ -87,6 +108,10 @@ public class SettingsFragment extends PreferenceFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.onCreate()", "method has been invoked");
+
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
 
@@ -127,12 +152,20 @@ public class SettingsFragment extends PreferenceFragment {
 
     @Override
     public void onStop() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.onStop()", "method has been invoked");
+
         getPolicyPreferences();
         getPreferences();
         super.onStop();
     }
 
     private void getPolicyPreferences() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.getPolicyPreferences()", "method has been invoked");
+
         Set<String> acceptedPolicies = new HashSet<>();
 
         PreferenceCategory policyCat = (PreferenceCategory) findPreference(getString(R.string.policy_settings));
@@ -148,6 +181,9 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     private Set<String> getPreferences(){
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("SettingsFragment.getPreferences()", "method has been invoked");
 
         Set<String> userLocPreferences = new HashSet<>();
         String[] categories = getResources().getStringArray(R.array.user_loc);
