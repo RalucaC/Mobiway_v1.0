@@ -21,15 +21,25 @@ import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.location.*;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.acra.ACRA;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -44,7 +54,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import ro.pub.acs.mobiway.R;
@@ -119,20 +134,28 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                     if (routingEngine.equalsIgnoreCase("osrm")) {
 
+                        //ACRA log
+                        ACRA.getErrorReporter().putCustomData("MainActivity.showRoute():routeByOSRM", "osrm");
+
                         Log.d("ro.pub.acs.mobiway", location1.toString() + "---" + location2.toString());
 
                         List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
                         showRouteOnMap(result);
+
                     } else if (routingEngine.equalsIgnoreCase("pgrouting")) {
 
+                        //ACRA log
+                        ACRA.getErrorReporter().putCustomData("MainActivity.showRoute():routeByPgRouting", "pgrouting");
 
                         List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
 
-                        Log.d("---------------00000", result.toString());
                         showRouteOnMap(result);
                     }
 
                 } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.showRoute():error", e.toString());
                     e.printStackTrace();
                 }
             }
@@ -144,6 +167,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onCreate()", "callback method was invoked");
 
         // Logging config
         Log.i(TAG, "onCreate() callback method was invoked");
@@ -192,10 +218,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -215,6 +238,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onStart() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onStart()", "callback method was invoked");
+
         Log.i(TAG, "onStart() callback method was invoked");
 
         super.onStart();
@@ -239,6 +266,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     protected void onStop() {
 
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onStop()", "callback method was invoked");
+
         Log.i(TAG, "onStop() callback method was invoked");
 
         stopLocationUpdates();
@@ -251,6 +281,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     protected void onDestroy() {
 
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onDestroy()", "callback method was invoked");
+
         Log.i(TAG, "onDestroy() callback method was invoked");
 
         googleApiClient = null;
@@ -260,6 +293,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
 
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onSaveInstanceState()", "callback method was invoked");
+
         Log.i(TAG, "onSaveInstanceState() callback method was invoked");
 
         super.onSaveInstanceState(savedInstanceState);
@@ -267,6 +303,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onResume() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onResume()", "callback method was invoked");
 
         Log.i(TAG, "onResume() callback method was invoked");
 
@@ -277,6 +316,12 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onCreateOptionsMenu()", "callback method was invoked");
+
+        Log.i(TAG, "onCreateOptionsMenu() callback method was invoked");
+
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
@@ -287,6 +332,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onOptionsItemSelected()", "callback method was invoked");
+
         int id = item.getItemId();
         switch (id) {
             case R.id.gps_as_src: {
@@ -373,6 +422,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void navigateToLocation(final double latitude, final double longitude, final float speed) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation()", "method was invoked");
+
         if (firstLocation) {
             CameraPosition cameraPosition = new CameraPosition.Builder().target(
                     new LatLng(latitude, longitude)
@@ -411,6 +464,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                         restClient.getApiService().updateLocation(location);
                     } catch (Exception e) {
+
+                        //ACRA log
+                        ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorSetLocation1", e.toString());
+
                         e.printStackTrace();
                     }
                 }
@@ -440,6 +497,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                                 spm.setLocationHistory(Constants.EMPTY_ARRAY);
                             } catch (Exception e) {
+
+                                //ACRA log
+                                ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorSetLocation2", e.toString());
+
                                 e.printStackTrace();
                             }
                         }
@@ -447,6 +508,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                     thread2.start();
                 }
             } catch (JSONException e) {
+
+                //ACRA log
+                ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx1", e.toString());
+
                 e.printStackTrace();
             }
         } else {
@@ -462,6 +527,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                 spm.setLocationHistory(jsonArray.toString());
             } catch (JSONException e) {
+
+                //ACRA log
+                ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx2", e.toString());
+
                 e.printStackTrace();
             }
         }
@@ -475,6 +544,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     public void onConnected(Bundle connectionHint) {
 
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onConnected()", "method has been invoked");
+
         Log.i(TAG, "onConnected() callback method has been invoked");
 
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
@@ -484,15 +556,26 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     public void onConnectionSuspended(int cause) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onConnectionSuspended()", "method has been invoked");
+
         Log.i(TAG, "onConnectionSuspended() callback method has been invoked");
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onConnectionFailed()", "method has been invoked");
+
         Log.i(TAG, "onConnectionFailed() callback method has been invoked");
     }
 
     protected void startLocationUpdates() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.startLocationUpdates()", "method has been invoked");
 
         // Notify Server that we started a new Journey
         if (spm.getNotificationsEnabled()) {
@@ -536,6 +619,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
 
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.onLocationChanged()", "method has been invoked");
+
         Log.i(TAG, "onLocationChanged() callback method has been invoked");
 
         oldLocation = lastLocation;
@@ -573,6 +660,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                         }
                     }
                 } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getContacts():error", e.toString());
+
                     e.printStackTrace();
                 }
 
@@ -595,6 +686,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                     showFriendsOnMap();
                 } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getFriends():error", e.toString());
+
                     e.printStackTrace();
                 }
             }
@@ -638,6 +733,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                     showPlacesOnMap(result);
                 } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getNearbyLocations:error", e.toString());
+
                     e.printStackTrace();
                 }
             }
@@ -661,7 +760,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     private void showRouteOnMap(final List<ro.pub.acs.mobiway.rest.model.Location> points) {
 
-        Log.d("---------------", points.toString());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -770,10 +868,22 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                         showPlacesOnMap(aPlaces);
                     }
                 } catch (JSONException e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getLocationsFromAddress:JSONException", e.toString());
+
                     e.printStackTrace();
                 } catch (ClientProtocolException e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getLocationsFromAddress:ClientProtocolException", e.toString());
+
                     e.printStackTrace();
                 } catch (IOException e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getLocationsFromAddress:IOException", e.toString());
+
                     e.printStackTrace();
                 }
             }
@@ -803,9 +913,12 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                     Set<String> acceptedPolicySet = new HashSet<>();
                     acceptedPolicySet.addAll(acceptedPolicyList);
                     spm.setUserPolicy(acceptedPolicySet);
-                } catch (Exception ex) {
+                } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.loadDefaultPolicyValues:IOException", e.toString());
+
                     Log.d(TAG, "Error loading default policy values");
-                    //ex.printStackTrace();
                 }
             }
         });
@@ -884,6 +997,4 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         });
         thread.start();
     }
-
-
 }
