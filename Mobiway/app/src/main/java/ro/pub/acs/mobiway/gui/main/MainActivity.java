@@ -212,7 +212,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         autoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().length() > 5) {
+                places.clear();
+
+                if (s.toString().length() > 3) {
                     getPlacesAutocomplete(s.toString());
                 }
             }
@@ -222,7 +224,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.toString().length() > 5) {
+                places.clear();
+
+                if (s.toString().length() > 3) {
                     getPlacesAutocomplete(s.toString());
                 }
             }
@@ -802,22 +806,22 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         final PendingResult<AutocompletePredictionBuffer> result =
                 Places.GeoDataApi.getAutocompletePredictions(googleApiClient, query,
                         latLngBounds, null);
-        places.clear();
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                AutocompletePredictionBuffer autocompletePredictionBuffer = result.await(30, TimeUnit.SECONDS);
+                final AutocompletePredictionBuffer autocompletePredictionBuffer = result.await(30, TimeUnit.SECONDS);
 
-                for (AutocompletePrediction autocompletePrediction : autocompletePredictionBuffer) {
-                    places.add(autocompletePrediction.getDescription());
-                }
-                autocompletePredictionBuffer.release();
-
-                Log.e(TAG, "places " + places);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        places.clear();
+                        for (AutocompletePrediction autocompletePrediction : autocompletePredictionBuffer) {
+                            places.add(autocompletePrediction.getDescription());
+                        }
+                        autocompletePredictionBuffer.release();
+
+                        Log.e(TAG, "places " + places);
                         placesAdapter.notifyDataSetChanged();
                     }
                 });
