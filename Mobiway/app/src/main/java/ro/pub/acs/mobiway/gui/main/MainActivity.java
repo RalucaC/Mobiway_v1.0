@@ -275,8 +275,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         Log.i(TAG, "onStop() callback method was invoked");
 
-        stopLocationUpdates();
         if (googleApiClient != null && googleApiClient.isConnected()) {
+            stopLocationUpdates();
             googleApiClient.disconnect();
         }
         super.onStop();
