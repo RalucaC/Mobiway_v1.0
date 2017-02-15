@@ -2,7 +2,9 @@ package ro.pub.acs.mobiway.gui.auth;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -133,9 +135,8 @@ public class CreateAccountUserFragment extends Fragment {
                                     getActivity().finish();
                                     dismissDialog();
                                 } else {
-                                    emailEditText.setHintTextColor(getActivity().getResources().getColor(R.color.custom_hint_text_color));
-                                    emailEditText.setHint(getActivity().getResources().getString(R.string.emailAddressExists));
                                     dismissDialog();
+                                    showUserAlreadyExistsDialog();
                                 }
                                 Log.e(TAG, "authenticatedUser: " + result);
                             } catch (Exception e) {
@@ -174,6 +175,21 @@ public class CreateAccountUserFragment extends Fragment {
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 pDialog.dismiss();
+            }
+        });
+    }
+
+    public void showUserAlreadyExistsDialog() {
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                new AlertDialog.Builder(getContext())
+                    .setTitle("User already exists")
+                    .setMessage("A user with this e-mail address already exists in the database")
+                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {}
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
             }
         });
     }
