@@ -1,6 +1,9 @@
 package ro.pub.acs.mobiway.core;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 import com.google.android.gms.maps.model.*;
 
 import org.acra.ACRA;
@@ -17,7 +20,7 @@ public class RoutingHelper {
     private Marker dstMarker;
 
     private LatLng userSelectedLocation;
-    private Marker userSelecteMarker;
+    private Marker userSelectedMarker;
 
     public RoutingHelper(Activity parentActivity) {
         this.parentActivity = parentActivity;
@@ -37,12 +40,12 @@ public class RoutingHelper {
         //ACRA log
         ACRA.getErrorReporter().putCustomData("RoutingHelper.selectPoint()", "method has been invoked");
 
-        if (userSelecteMarker != null) {
-            userSelecteMarker.setVisible(false);
+        if (userSelectedMarker != null && !isPOIMarker(userSelectedMarker) && !userSelectedMarker.equals(selectedMarker)) {
+            userSelectedMarker.setVisible(false);
         }
 
         userSelectedLocation = selectedPoint;
-        userSelecteMarker = selectedMarker;
+        userSelectedMarker = selectedMarker;
     }
 
     public void selectSrc() {
@@ -52,17 +55,25 @@ public class RoutingHelper {
 
         if (userSelectedLocation != null) {
 
-            if (srcMarker != null) {
+            if (userSelectedMarker != null && userSelectedMarker.equals(dstMarker)) {
+                userSelectedMarker = null;
+                showAlertDialog();
+                return;
+            }
+
+            if (srcMarker != null && !isPOIMarker(srcMarker) && !srcMarker.equals(userSelectedMarker)) {
                 srcMarker.setVisible(false);
             }
 
-            userSelecteMarker.setTitle("Source");
-            srcMarker = userSelecteMarker;
-            userSelecteMarker = null;
+            if (userSelectedMarker != null && !isPOIMarker(userSelectedMarker)) {
+                userSelectedMarker.setTitle("Source");
+            }
+            srcMarker = userSelectedMarker;
+            userSelectedMarker = null;
             srcLocation = userSelectedLocation;
         }
 
-        userSelecteMarker = null;
+        userSelectedMarker = null;
     }
 
     public void selectDst() {
@@ -72,14 +83,22 @@ public class RoutingHelper {
 
         if (userSelectedLocation != null) {
 
-            if (dstMarker != null) {
+            if (userSelectedMarker != null && userSelectedMarker.equals(srcMarker)) {
+                userSelectedMarker = null;
+                showAlertDialog();
+                return;
+            }
+
+            if (dstMarker != null && !isPOIMarker(dstMarker) && !dstMarker.equals(userSelectedMarker)) {
                 // Make existing marker invisible first
                 dstMarker.setVisible(false);
             }
 
-            userSelecteMarker.setTitle("Destination");
-            dstMarker = userSelecteMarker;
-            userSelecteMarker = null;
+            if (userSelectedMarker != null && !isPOIMarker(userSelectedMarker)) {
+                userSelectedMarker.setTitle("Destination");
+            }
+            dstMarker = userSelectedMarker;
+            userSelectedMarker = null;
             dstLocation = userSelectedLocation;
         }
     }
@@ -110,12 +129,28 @@ public class RoutingHelper {
         }
 
         userSelectedLocation = null;
-        if (userSelecteMarker != null) {
-            userSelecteMarker.setVisible(false);
-            userSelecteMarker = null;
+        if (userSelectedMarker != null) {
+            userSelectedMarker.setVisible(false);
+            userSelectedMarker = null;
         }
     }
 
+    private static boolean isPOIMarker(Marker marker) {
+        return !marker.getTitle().equals("Marker") && !marker.getTitle().equals("Destination") && !marker.getTitle().equals("Source");
+    }
+
+    private void showAlertDialog() {
+        parentActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                new AlertDialog.Builder(parentActivity)
+                        .setTitle("Invalid source or destination")
+                        .setMessage("The source cannot be the same as the destination. Please try again.")
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {}
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+    }
 }
-
-

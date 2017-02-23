@@ -8,12 +8,14 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 
@@ -30,6 +32,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -90,7 +93,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private Location oldLocation = null;
     private Location lastLocation = null;
     private LocationRequest locationRequest = null;
-    private Marker marker;
+    private Marker marker = null;
     private String destinationTitle;
     private LatLng latLngMarker;
 
@@ -235,6 +238,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                marker = null;
+                hideKeyboard();
                 getLocationsFromAddress(autoCompleteTextView.getText().toString());
             }
         });
@@ -401,6 +406,18 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             case R.id.action_statistics: {
                 Intent i = new Intent(getApplicationContext(), StatisticsActivity.class);
                 startActivity(i);
+                return true;
+            }
+
+            case R.id.action_about: {
+                new AlertDialog.Builder(this)
+                        .setTitle("About")
+                        .setMessage(R.string.licenses)
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {}
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
                 return true;
             }
 
@@ -712,7 +729,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             googleMap.addMarker(new MarkerOptions()
                                     .title(friend.getFirstname() + " " + friend.getLastname())
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_face_black_24dp))
-                                    .alpha(0.8f)
+                                    .alpha(0.9f)
                                     .position(new LatLng(location.getLatitude(), location.getLongitude())));
                             break;
                         }
@@ -755,8 +772,30 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 for (Place place : places) {
                     googleMap.addMarker(new MarkerOptions()
                             .title(place.getName())
-                            .alpha(0.8f)
-                            .position(new LatLng(place.getLatitude(), place.getLongitude())));
+                            .alpha(1f)
+                            .position(new LatLng(place.getLatitude(), place.getLongitude()))
+                            .flat(true)
+                            .icon(getIconFromPlace(place)));
+                }
+            }
+        });
+    }
+
+    private void showPlaceOnMap(final Place place) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LatLng pos = new LatLng(place.getLatitude(), place.getLongitude());
+
+                Marker marker = googleMap.addMarker(new MarkerOptions()
+                        .title("Marker")
+                        .alpha(0.9f)
+                        .position(pos));
+
+                Log.v(TAG, "Selecting place " + place.getName());
+                routingHelper.selectPoint(pos, marker);
+                if (routingHelper.getUseGpsForSrc()) {
+                    routingHelper.selectDst();
                 }
             }
         });
@@ -778,23 +817,34 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        hideKeyboard();
+
         this.marker = marker;
         latLngMarker = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
         destinationTitle = marker.getTitle();
         marker.showInfoWindow();
+
+        Log.v(TAG, "Selecting marker " + marker.getTitle());
+
+        routingHelper.selectPoint(latLngMarker, marker);
+        if (routingHelper.getUseGpsForSrc()) {
+            routingHelper.selectDst();
+        }
+
         return true;
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
+        hideKeyboard();
+        marker = null;
 
         Marker selMarker = googleMap.addMarker(new MarkerOptions()
                 .title("Marker")
-                .alpha(0.8f)
+                .alpha(0.9f)
                 .position(latLng));
 
         routingHelper.selectPoint(latLng, selMarker);
-
         if (routingHelper.getUseGpsForSrc()) {
             routingHelper.selectDst();
         }
@@ -862,14 +912,12 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                     latLng = new LatLng(lat, lng);
                     if (latLng != null) {
-                        ArrayList<Place> aPlaces = new ArrayList<Place>();
                         Place place = new Place();
                         place.setName(autoCompleteTextView.getText().toString());
                         place.setLatitude((float) latLng.latitude);
                         place.setLongitude((float) latLng.longitude);
-                        aPlaces.add(place);
 
-                        showPlacesOnMap(aPlaces);
+                        showPlaceOnMap(place);
                     }
                 } catch (JSONException e) {
 
@@ -1008,5 +1056,66 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             }
         });
         thread.start();
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
+    private static BitmapDescriptor getIconFromPlace(Place place) {
+        String type = place.getType();
+
+        if ("atm".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.atm);
+        } else if ("bureau_de_change".equals(type) || "bank".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.bank);
+        } else if ("bar".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.bar);
+        } else if ("cafe".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.cafe);
+        } else if ("car_wash".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.carwash);
+        } else if ("cinema".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.cinema);
+        } else if ("clinic".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.clinic);
+        } else if ("college".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.college);
+        } else if ("dentist".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.dentist);
+        } else if ("bakery".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.fastfood);
+        } else if ("fuel".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.fuel);
+        } else if ("sports_centre".equals(type) || "fitness_centre".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.gym);
+        } else if ("hospital".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.hospital);
+        } else if ("library".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.library);
+        } else if ("marketplace".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.marketplace);
+        } else if ("nightclub".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.club);
+        } else if ("pharmacy".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.pharmacy);
+        } else if ("police".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.police);
+        } else if ("pub".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.pub);
+        } else if ("restaurant".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.restaurant);
+        } else if ("school".equals(type) || "kindergarten".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.school);
+        } else if ("taxi".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.taxi);
+        } else if ("theatre".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.theater);
+        } else if ("university".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.university);
+        }
+
+        return (BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
     }
 }
