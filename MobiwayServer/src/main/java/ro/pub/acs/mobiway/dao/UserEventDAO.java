@@ -6,7 +6,8 @@ import java.util.*;
 import ro.pub.acs.mobiway.model.*;
 
 public interface UserEventDAO extends Serializable {
-	public UserEvent get(int id);
+
+	public List<UserEvent> get(Integer id);
 
 	public List<UserEvent> get(String osmId);
 

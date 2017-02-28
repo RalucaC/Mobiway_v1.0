@@ -62,7 +62,6 @@ public class Location implements Serializable {
 	}
 
 	public void setLatitude(Float latitude) {
-		System.out.println("aaaaaaaaaaaaa" + latitude);
 		this.latitude = latitude;
 	}
 

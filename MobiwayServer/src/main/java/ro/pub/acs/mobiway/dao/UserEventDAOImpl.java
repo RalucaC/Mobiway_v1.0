@@ -15,7 +15,7 @@ public class UserEventDAOImpl implements UserEventDAO {
 
 	@Override
 	@Transactional
-	public List<UserEvent> get(int id) {
+	public List<UserEvent> get(Integer id) {
 		 Criteria criteria = sessionFactory.getCurrentSession()
 				 .createCriteria(UserEvent.class)
 				 .add(Restrictions.eq("id", id));
