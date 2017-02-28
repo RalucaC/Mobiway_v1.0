@@ -427,6 +427,9 @@ public class ServicesController {
 		// The id of the user is contained inside the location
 		// TODO: add it as a parameter instead
 		User user = userDAO.get(authToken, locations.get(0).getIdUser());
+		if (user == null) {
+			return false;
+		}
 
 		// Create the Journey Object
 		Journey newJourney = new Journey();
