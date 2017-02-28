@@ -414,7 +414,43 @@ public class ServicesController {
 
 		return false;
 	}
-	
+
+	@SuppressWarnings({ "deprecation", "resource" })
+	@RequestMapping(value = "/location/saveHistory", method = RequestMethod.POST)
+	public @ResponseBody boolean saveHistory(@RequestBody ArrayList<Location> locations,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		if (locations == null || locations.size() == 0) {
+			return true;
+		}
+
+		// The id of the user is contained inside the location
+		// TODO: add it as a parameter instead
+		User user = userDAO.get(authToken, locations.get(0).getIdUser());
+
+		// Create the Journey Object
+		Journey newJourney = new Journey();
+		newJourney.setIdUser(user);
+		newJourney.setJourneyName("journey_" + Calendar.getInstance().getTimeInMillis());
+		journeyDAO.add(newJourney);
+
+		for (Location location : locations) {
+			JourneyData journeyData = new JourneyData();
+			journeyData.setJourneyId(newJourney);
+			journeyData.setLatitude(location.getLatitude());
+			journeyData.setLongitude(location.getLongitude());
+			journeyData.setSpeed(location.getSpeed());
+			journeyData.setTimestamp(location.getTimestamp());
+
+			// Set the OSM id (used later)
+			String osmId = getOSMId(location);
+			journeyData.setOsmWayId(osmId);
+			journeyDataDAO.add(journeyData);
+		}
+
+		return true;
+	}
+
 	private String getOSMId(Location location) {
 		/* Set the OSM id (used later)*/
 		String osmId = null;
