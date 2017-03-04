@@ -72,6 +72,13 @@
             android:label="@string/title_activity_statistics"
             android:parentActivityName="ro.pub.acs.mobiway.gui.main.MainActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="ro.pub.acs.mobiway.gui.events.EventsActivity"
+            android:configChanges="locale|layoutDirection"
+            android:label="@string/title_activity_events"
+            android:parentActivityName="ro.pub.acs.mobiway.gui.main.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
     </application>

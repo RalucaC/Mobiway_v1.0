@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -70,6 +69,7 @@ import ro.pub.acs.mobiway.core.RoutingHelper;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.general.Util;
+import ro.pub.acs.mobiway.gui.events.EventsActivity;
 import ro.pub.acs.mobiway.gui.settings.SettingsActivity;
 import ro.pub.acs.mobiway.gui.statistics.StatisticsActivity;
 import ro.pub.acs.mobiway.rest.RestClient;
@@ -435,6 +435,15 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                         })
                         .setNegativeButton(getResources().getString(R.string.no), null)
                         .show();
+                return true;
+            }
+
+            case R.id.post_event: {
+                //ACRA log
+                ACRA.getErrorReporter().putCustomData("MainActivity.onOptionsItemSelected()", "method has been invoked");
+
+                Intent i = new Intent(getApplicationContext(), EventsActivity.class);
+                startActivity(i);
                 return true;
             }
         }

@@ -67,5 +67,11 @@
         android:title="@string/clear_routes"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/post_event"
+        android:orderInCategory="100"
+        android:title="@string/add_event"
+        app:showAsAction="never" />
+
 
 </menu>

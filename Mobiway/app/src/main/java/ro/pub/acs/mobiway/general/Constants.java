@@ -39,7 +39,7 @@ public abstract class Constants {
     public static final String URL_GET_SPEED_STATISTICS = "/location/getSpeedStatistics";
     public static final String URL_NEW_JOURNEY          = "/location/newJourney";
     public static final String URL_GET_EVENT            = "/location/getEvent";
-    public static final String URL_POST_EVENT           = "location/postEvent";
+    public static final String URL_POST_EVENT           = "/location/postEvent";
 
 
     public static final String URL_GET_FRIENDS_NAMES        = "/social/getFriendsNames";
