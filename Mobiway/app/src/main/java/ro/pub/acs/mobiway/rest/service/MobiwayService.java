@@ -161,4 +161,22 @@ public interface MobiwayService {
     })
     @POST(Constants.URL_GET_ROUTE_PG)
     List<Location> getRoutePG(@Body ArrayList<Location> locations);
+
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @PUT(Constants.URL_POST_EVENT + "/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}/{latitude}/{longitude}/{osmWayId}")
+    boolean postEvent(
+          @Path ("eventName") String eventName,
+          @Path ("distance") Float distance,
+          @Path ("timeSinceEvent") Float timeSinceEvent,
+          @Path ("spaceAccuracy") Float spaceAccuracy,
+          @Path ("timeAccuracy") Float timeAccuracy,
+          @Path ("latitude") Double latitude,
+          @Path ("longitude") Double longitude,
+          @Path ("osmWayId") String osmWayId,
+          @Body Location location
+    );
 }

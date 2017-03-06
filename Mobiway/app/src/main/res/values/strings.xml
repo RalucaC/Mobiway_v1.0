@@ -44,6 +44,7 @@
     <string name="event_police">Police</string>
     <string name="event_pothole">Pothole</string>
     <string name="events">Events</string>
+    <string name="event_details">Details</string>
 
     <string name="key_language_preference">key_language_preference</string>
     <string name="key_account_preference">key_account_preference</string>

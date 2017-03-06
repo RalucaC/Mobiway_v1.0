@@ -114,8 +114,8 @@ public class ServicesController {
 			@PathVariable Float timeSinceEvent,
 			@PathVariable Float spaceAccuracy,
 			@PathVariable Float timeAccuracy,
-			@PathVariable Float latitude,
-			@PathVariable Float longitude,
+			@PathVariable Double latitude,
+			@PathVariable Double longitude,
 			@PathVariable String osmWayId,
 			@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {

@@ -16,6 +16,18 @@
             android:title="@string/event_police"
             android:summary="Police" />
 
+        <EditTextPreference
+            android:id="@+id/policy_details"
+            android:key="event_details"
+            android:title="@string/event_details"
+            android:editable="true"
+            android:clickable="true"
+            android:enabled="false" />
+
+        <Preference android:title="Acts like a button"
+            android:key="send_event_button"
+            android:summary="This is a cool button"/>
+
     </PreferenceCategory>
 
 

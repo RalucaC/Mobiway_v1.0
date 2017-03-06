@@ -43,10 +43,10 @@ public class UserEvent implements Serializable {
 	private Float timeAccuracy;
 
 	@Column(name = "latitude", nullable = true)
-	private Float latitude;
+	private Double latitude;
 
 	@Column(name = "longitude", nullable = true)
-	private Float longitude;
+	private Double longitude;
 
 	@Lob
 	@Column(name = "osm_way_id", nullable = true)
@@ -61,7 +61,7 @@ public class UserEvent implements Serializable {
 
 	public UserEvent(Integer id, User user, TrafficEvent trafficEvent, Date timestamp,
 		 Float distance, Float timeSinceEvent, Float spaceAccuracy, Float timeAccuracy,
-		 Float latitude, Float longitude, String osmWayId) {
+		 Double latitude, Double longitude, String osmWayId) {
 		this.id = id;
 		this.idUser = user;
 		this.idTrafficEvent = trafficEvent;
@@ -139,19 +139,19 @@ public class UserEvent implements Serializable {
 		this.timeAccuracy = timeAccuracy;
 	}
 
-	public Float getLatitude() {
+	public Double getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(Float latitude) {
+	public void setLatitude(Double latitude) {
 		this.latitude = latitude;
 	}
 
-	public Float getLongitude() {
+	public Double getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(Float longitude) {
+	public void setLongitude(Double longitude) {
 		this.longitude = longitude;
 	}
 
