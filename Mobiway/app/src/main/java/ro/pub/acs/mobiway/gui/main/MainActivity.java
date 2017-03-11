@@ -30,6 +30,7 @@ import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -258,8 +259,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         checkServerStatus();
         googleApiClient.connect();
         if (googleMap == null) {
-            googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             googleMap.setOnMarkerClickListener(this);
             googleMap.setOnMapClickListener(this);
             googleMap.getUiSettings().setMyLocationButtonEnabled(false);

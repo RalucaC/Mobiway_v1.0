@@ -5,9 +5,11 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.util.Log;
+import android.widget.Toast;
 
 import org.acra.ACRA;
+
+import java.util.ArrayList;
 
 import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
@@ -16,6 +18,8 @@ import ro.pub.acs.mobiway.rest.RestClient;
 public class EventsFragment extends PreferenceFragment{
 
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
+    private final String eventNamePolice = "police";
+    private final String eventNameTrafficJam = "traffic_jam";
 
     public EventsFragment() {
         // Required empty public constructor
@@ -30,29 +34,17 @@ public class EventsFragment extends PreferenceFragment{
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_events);
 
+        final ArrayList<CheckBoxPreference> eventsCheckBoxes = new ArrayList<>();
 
-        final CheckBoxPreference policyCheckbox = (CheckBoxPreference) findPreference("checkbox_preference");
+        final CheckBoxPreference policyCheckbox = (CheckBoxPreference) findPreference("checkbox_preference_police");
+        final CheckBoxPreference trafficCheckbox = (CheckBoxPreference) findPreference("checkbox_preference_traffic_jam");
+
+        eventsCheckBoxes.add(policyCheckbox);
+        eventsCheckBoxes.add(trafficCheckbox);
+
+        uncheckEvents(eventsCheckBoxes);
+
         final EditTextPreference eventDetails = (EditTextPreference) findPreference("event_details");
-
-        policyCheckbox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-
-                boolean checked = Boolean.valueOf(newValue.toString());
-                if (checked) {
-
-                    eventDetails.setEnabled(true);
-                } else {
-
-                    eventDetails.setEnabled(false);
-                }
-
-                Log.d("Events", "checked value: " + checked);
-
-                return true;
-            }
-        });
 
         Preference button = findPreference("send_event_button");
 
@@ -60,12 +52,20 @@ public class EventsFragment extends PreferenceFragment{
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                if(policyCheckbox.isChecked()) {
+                final String eventName = getEventName(eventsCheckBoxes);
+
+                // get the details
+                if(eventDetails.isEnabled() && eventDetails.getText().compareTo("") != 0 ) {
                     String details = eventDetails.getText();
+
+
                 } else {
+
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), "No event details", Toast.LENGTH_SHORT);
+                    toast.show();
+
                     return false;
                 }
-
 
                 Thread thread = new Thread(new Runnable() {
 
@@ -86,8 +86,7 @@ public class EventsFragment extends PreferenceFragment{
 
                             // send event to the server
                             RestClient restClient = new RestClient();
-                            restClient.getApiService().postEvent("police", distance, distance, distance, distance, spm.getLatitude(), spm.getLongitude(), "", location);
-
+                            restClient.getApiService().postEvent(eventName, distance, distance, distance, distance, spm.getLatitude(), spm.getLongitude(), "", location);
 
                         } catch (Exception e) {
 
@@ -100,13 +99,51 @@ public class EventsFragment extends PreferenceFragment{
                 });
                 thread.start();
 
-
                 return true;
             }
         });
 
+    }
 
+    private void uncheckEvents(ArrayList<CheckBoxPreference> eventsCheckboxes){
+
+        final ArrayList<CheckBoxPreference> alViewMode = new ArrayList<>();
+
+        Preference.OnPreferenceClickListener listener = new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                for (CheckBoxPreference cbp : alViewMode) {
+                    if (!cbp.getKey().equals(preference.getKey()) && cbp.isChecked()) {
+                        cbp.setChecked(false);
+                    }
+                    else if (cbp.getKey().equals(preference.getKey()) && !cbp.isChecked()) {
+                        cbp.setChecked(true);
+                    }
+                }
+                return false;
+            }
+        };
+
+        for (CheckBoxPreference checkbox : eventsCheckboxes ) {
+
+            checkbox.setOnPreferenceClickListener(listener);
+            alViewMode.add(checkbox);
+        }
 
     }
 
+    private String getEventName(ArrayList<CheckBoxPreference> eventsCheckboxes){
+
+        for (CheckBoxPreference checkbox : eventsCheckboxes) {
+            if(checkbox.isChecked()) {
+                if(checkbox.getKey().compareTo("checkbox_preference_police") == 0) {
+                    return eventNamePolice;
+                }
+                if(checkbox.getKey().compareTo("checkbox_preference_traffic_jam") == 0) {
+                    return eventNameTrafficJam;
+                }
+            }
+        }
+        return "";
+    }
 }

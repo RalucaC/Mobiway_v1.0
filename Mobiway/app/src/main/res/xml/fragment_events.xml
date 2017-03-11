@@ -9,24 +9,30 @@
 
 
     <PreferenceCategory
-        android:title="Event type">
+        android:title="@string/event_type">
 
         <CheckBoxPreference
-            android:key="checkbox_preference"
-            android:title="@string/event_police"
-            android:summary="Police" />
+            android:id="@+id/checkbox_preference_police"
+            android:key="checkbox_preference_police"
+            android:state_checked="false"
+            android:title="@string/police"/>
+
+        <CheckBoxPreference
+            android:id="@+id/checkbox_preference_traffic_jam"
+            android:key="checkbox_preference_traffic_jam"
+            android:state_checked="false"
+            android:title="@string/traffic_jam"/>
 
         <EditTextPreference
             android:id="@+id/policy_details"
             android:key="event_details"
-            android:title="@string/event_details"
+            android:title="@string/event_add_details"
             android:editable="true"
             android:clickable="true"
-            android:enabled="false" />
+            android:enabled="true" />
 
-        <Preference android:title="Acts like a button"
-            android:key="send_event_button"
-            android:summary="This is a cool button"/>
+        <Preference android:title="@string/send_event"
+            android:key="send_event_button"/>
 
     </PreferenceCategory>
 

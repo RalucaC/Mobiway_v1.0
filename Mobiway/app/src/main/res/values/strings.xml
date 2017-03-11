@@ -41,10 +41,12 @@
 
     // Events
     <string name="send_event">Post event</string>
-    <string name="event_police">Police</string>
+    <string name="police">Police</string>
+    <string name="traffic_jam">Traffic Jam</string>
     <string name="event_pothole">Pothole</string>
     <string name="events">Events</string>
-    <string name="event_details">Details</string>
+    <string name="event_add_details">Add details</string>
+    <string name="event_type">Event type</string>
 
     <string name="key_language_preference">key_language_preference</string>
     <string name="key_account_preference">key_account_preference</string>
