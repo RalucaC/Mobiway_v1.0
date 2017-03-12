@@ -30,7 +30,6 @@ import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -207,6 +206,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         getNearbyLocations();
+        getTrafficEvents();
 
         places = new ArrayList<>();
         placesAdapter = new PlacesAdapter(this, places);
@@ -774,6 +774,30 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         thread.start();
     }
 
+    public void getTrafficEvents() {
+
+        //ACRA log
+        ACRA.getErrorReporter().putCustomData("MainActivity.getTrafficEvents:error", "called function");
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RestClient restClient = new RestClient();
+                    List<Place> result = restClient.getApiService().getEvent(spm.getLatitude(), spm.getLongitude());
+
+                    showPlacesOnMap(result);
+                } catch (Exception e) {
+
+                    //ACRA log
+                    ACRA.getErrorReporter().putCustomData("MainActivity.getTrafficEvents:error", e.toString());
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+
     private void showPlacesOnMap(final List<Place> places) {
         runOnUiThread(new Runnable() {
             @Override
@@ -1123,6 +1147,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             return BitmapDescriptorFactory.fromResource(R.drawable.theater);
         } else if ("university".equals(type)) {
             return BitmapDescriptorFactory.fromResource(R.drawable.university);
+        } else if ("traffic_jam".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.traffic_jam);
         }
 
         return (BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));

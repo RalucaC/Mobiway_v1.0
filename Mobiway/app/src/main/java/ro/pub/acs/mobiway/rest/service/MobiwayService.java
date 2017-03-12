@@ -179,4 +179,11 @@ public interface MobiwayService {
           @Path ("osmWayId") String osmWayId,
           @Body Location location
     );
+
+
+    @GET(Constants.URL_GET_EVENT + "/{latitude}/{longitude}")
+    List<Place> getEvent(@Path("latitude") Double latitude,
+                         @Path("longitude") Double longitude
+    );
+
 }
