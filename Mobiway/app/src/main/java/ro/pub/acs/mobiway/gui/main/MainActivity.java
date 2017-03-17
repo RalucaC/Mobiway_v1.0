@@ -56,6 +56,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,6 +98,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private String destinationTitle;
     private LatLng latLngMarker;
 
+    private SimpleDateFormat sdf;
 
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayList<String> places;
@@ -181,6 +183,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         spm = new SharedPreferencesManagement(getApplicationContext());
         routingHelper = new RoutingHelper(this);
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -244,6 +247,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 getLocationsFromAddress(autoCompleteTextView.getText().toString());
             }
         });
+
+        googleApiClient.connect();
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
     }
 
     @Override
@@ -256,8 +264,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         super.onStart();
 
-        checkServerStatus();
-        googleApiClient.connect();
         if (googleMap == null) {
             googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             googleMap.setOnMarkerClickListener(this);
@@ -265,10 +271,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             googleMap.getUiSettings().setMyLocationButtonEnabled(false);
             googleMap.getUiSettings().setCompassEnabled(false);
             googleMap.setMapType(Util.getMapType(spm.getMapType()));
-        }
-
-        if (googleApiClient != null && googleApiClient.isConnected()) {
-            startLocationUpdates();
         }
     }
 
@@ -280,10 +282,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         Log.i(TAG, "onStop() callback method was invoked");
 
-        if (googleApiClient != null && googleApiClient.isConnected()) {
-            stopLocationUpdates();
-            googleApiClient.disconnect();
-        }
         super.onStop();
     }
 
@@ -294,6 +292,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         ACRA.getErrorReporter().putCustomData("MainActivity.onDestroy()", "callback method was invoked");
 
         Log.i(TAG, "onDestroy() callback method was invoked");
+
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            stopLocationUpdates();
+            googleApiClient.disconnect();
+        }
 
         googleApiClient = null;
         super.onDestroy();
@@ -452,6 +455,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void navigateToLocation(final double latitude, final double longitude, final float speed) {
+        Log.v(TAG, "Navigate to location " + latitude + " " + longitude);
 
         //ACRA log
         ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation()", "method was invoked");
@@ -467,10 +471,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         final ro.pub.acs.mobiway.rest.model.Location location = new ro.pub.acs.mobiway.rest.model.Location();
-        location.setLatitude((float) latitude);
-        location.setLongitude((float) longitude);
-        location.setSpeed((int) speed);
+        location.setLatitude(spm.getShareLocationEnabled() ? (float) latitude : null);
+        location.setLongitude(spm.getShareLocationEnabled() ? (float) longitude : null);
+        location.setSpeed(spm.getShareSpeedEnabled() ? (int) speed : null);
         location.setIdUser(spm.getAuthUserId());
+        //location.setTimestamp(new Date());
 
         if (spm.getNotificationsEnabled() &&
                 lastLocation != null && oldLocation != null &&
@@ -481,50 +486,53 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 @Override
                 public void run() {
                     try {
+                        Log.v(TAG, "Uploading location " + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
+
                         RestClient restClient = new RestClient();
-
-                        if (!spm.getShareLocationEnabled()) {
-                            location.setLatitude(null);
-                            location.setLongitude(null);
-                        }
-
-                        if (!spm.getShareSpeedEnabled()) {
-                            location.setSpeed(null);
-                        }
-
                         restClient.getApiService().updateLocation(location);
                     } catch (Exception e) {
-
                         //ACRA log
                         ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorSetLocation1", e.toString());
-
                         e.printStackTrace();
+                        saveLocationOffline(location);
                     }
                 }
             });
             thread.start();
 
-            try {
-                final JSONArray jsonArray = new JSONArray(spm.getLocationHistory());
-                if(jsonArray.length() > 0){
-                    Thread thread2 = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
+            if (!Constants.EMPTY_ARRAY.equals(spm.getLocationHistory())) {
+                Thread thread2 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ArrayList<Integer> uploaded = new ArrayList<>();
+                        try {
+                            JSONArray jsonArray = new JSONArray(spm.getLocationHistory());
+
                             try {
                                 ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocation = new ArrayList<>();
-                                for (int i = 0; i < jsonArray.length(); i++){
-                                    JSONArray savedLocation = jsonArray.getJSONArray(i);
-                                    location.setLatitude(Float.parseFloat(savedLocation.get(0) + ""));
-                                    location.setLongitude(Float.parseFloat(savedLocation.get(1) + ""));
-                                    location.setSpeed((int) savedLocation.get(2));
-                                    location.setIdUser(spm.getAuthUserId());
 
-                                    aLocation.add(location);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONArray savedLocation = jsonArray.getJSONArray(i);
+                                    ro.pub.acs.mobiway.rest.model.Location savedRestLocation = new ro.pub.acs.mobiway.rest.model.Location();
+
+                                    Float latitude = Float.parseFloat(savedLocation.get(0) + "");
+                                    Float longitude = Float.parseFloat(savedLocation.get(1) + "");
+                                    Integer speed = (int) savedLocation.get(2);
+
+                                    savedRestLocation.setLatitude(latitude == Float.MIN_VALUE ? null : latitude);
+                                    savedRestLocation.setLongitude(longitude == Float.MIN_VALUE ? null : longitude);
+                                    savedRestLocation.setSpeed(speed == Integer.MIN_VALUE ? null : speed);
+                                    savedRestLocation.setTimestamp(sdf.parse(savedLocation.getString(3)));
+                                    savedRestLocation.setIdUser(spm.getAuthUserId());
+
+                                    Log.v(TAG, "Uploading saved location " + savedRestLocation.getLatitude() + " " + savedRestLocation.getLongitude() + " " +
+                                            savedRestLocation.getSpeed() + " " + savedRestLocation.getIdUser() + savedRestLocation.getTimestamp());
+
+                                    aLocation.add(savedRestLocation);
                                 }
 
                                 RestClient restClient = new RestClient();
                                 restClient.getApiService().updateLocations(aLocation);
-
                                 spm.setLocationHistory(Constants.EMPTY_ARRAY);
                             } catch (Exception e) {
 
@@ -533,38 +541,43 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                                 e.printStackTrace();
                             }
+                        } catch (JSONException e) {
+
+                            //ACRA log
+                            ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx1", e.toString());
+
+                            e.printStackTrace();
                         }
-                    });
-                    thread2.start();
-                }
-            } catch (JSONException e) {
-
-                //ACRA log
-                ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx1", e.toString());
-
-                e.printStackTrace();
+                    }
+                });
+                thread2.start();
             }
         } else {
-            try {
-                JSONArray jsonArray = new JSONArray(spm.getLocationHistory());
-
-                JSONArray aLocation = new JSONArray();
-                aLocation.put(latitude);
-                aLocation.put(longitude);
-                aLocation.put(speed);
-                aLocation.put(new Date().toString());
-                jsonArray.put(aLocation);
-
-                spm.setLocationHistory(jsonArray.toString());
-            } catch (JSONException e) {
-
-                //ACRA log
-                ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx2", e.toString());
-
-                e.printStackTrace();
-            }
+            saveLocationOffline(location);
         }
+    }
 
+    private void saveLocationOffline(ro.pub.acs.mobiway.rest.model.Location location) {
+        Log.v(TAG, "Saving location " + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
+
+        try {
+            JSONArray jsonArray = new JSONArray(spm.getLocationHistory());
+
+            JSONArray aLocation = new JSONArray();
+            aLocation.put(location.getLatitude() == null ? Float.MIN_VALUE : location.getLatitude());
+            aLocation.put(location.getLongitude() == null ? Float.MIN_VALUE : location.getLongitude());
+            aLocation.put(location.getSpeed() == null ? Integer.MIN_VALUE : location.getSpeed());
+            aLocation.put(sdf.format(new Date()));
+            jsonArray.put(aLocation);
+
+            spm.setLocationHistory(jsonArray.toString());
+        } catch (JSONException e) {
+
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx2", e.toString());
+
+            e.printStackTrace();
+        }
     }
 
     private void navigateToLocation(Location location) {
