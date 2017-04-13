@@ -1,5 +1,6 @@
 package ro.pub.acs.mobiway.rest.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 public class Location {
@@ -8,7 +9,7 @@ public class Location {
     private Float latitude;
     private Float longitude;
     private Integer speed;
-    private Date timestamp;
+    private String timestamp;
 
     public Location() {
     }
@@ -18,7 +19,7 @@ public class Location {
     }
 
     public Location(Integer idUser, Float latitude, Float longitude, Integer speed,
-                    Date timestamp) {
+                    String timestamp) {
         this.idUser = idUser;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -59,16 +60,15 @@ public class Location {
     }
 
     public Date getTimestamp() {
-        return timestamp;
+        return timestamp == null ? null : new Date(Long.parseLong(timestamp));
     }
 
     public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
+        this.timestamp = String.valueOf(timestamp.getTime());
     }
 
     @Override
     public String toString() {
         return "ro.pub.acs.traffic.model.Location[ idUser=" + idUser + " ]";
     }
-
 }
