@@ -11,7 +11,7 @@ import ro.pub.acs.mobiway.R;
 
 @ReportsCrashes(
 //        formUri = "http://www.backendofyourchoice.com/reportpath",//todo
-        mailTo = "raluca.constanda@gmail.com",
+        mailTo = "raluca.constanda@gmail.com, radu.ciobanu@cs.pub.ro",
 //        customReportContent = { APP_VERSION, ANDROID_VERSION, PHONE_MODEL, CUSTOM_DATA, STACK_TRACE, LOGCAT }
         mode = ReportingInteractionMode.TOAST,
         resToastText = R.string.crash_toast_text

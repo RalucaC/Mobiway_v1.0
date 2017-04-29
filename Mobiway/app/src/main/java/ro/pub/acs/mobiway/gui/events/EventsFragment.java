@@ -5,6 +5,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.acra.ACRA;
@@ -20,6 +21,7 @@ public class EventsFragment extends PreferenceFragment{
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
     private final String eventNamePolice = "police";
     private final String eventNameTrafficJam = "traffic_jam";
+    private static final String TAG = EventsFragment.class.getSimpleName();
 
     public EventsFragment() {
         // Required empty public constructor
@@ -74,6 +76,10 @@ public class EventsFragment extends PreferenceFragment{
                         try {
 
                             Float distance = Float.valueOf("0");
+                            Float timeSinceEvent = Float.valueOf("100");
+                            Float spaceAccuracy = Float.valueOf("10");
+                            Float timeAccuracy = Float.valueOf("0");
+
                             final ro.pub.acs.mobiway.rest.model.Location location = new ro.pub.acs.mobiway.rest.model.Location();
 //                @Path ("eventName") String eventName,
 //                @Path ("distance") Float distance,
@@ -83,10 +89,15 @@ public class EventsFragment extends PreferenceFragment{
 //                @Path ("latitude") Float latitude,
 //                @Path ("longitude") Float longitude,
 //                @Path ("osmWayId") String osmWayId
+                            Log.v(TAG, "eventName" + eventName);
+                            Log.v(TAG, "distance" + distance);
+                            Log.v(TAG, "timeSinceEvent" + timeSinceEvent);
+                            Log.v(TAG, "spaceAccuracy" + spaceAccuracy);
+                            Log.v(TAG, "timeAccuracy" + timeAccuracy);
 
                             // send event to the server
                             RestClient restClient = new RestClient();
-                            restClient.getApiService().postEvent(eventName, distance, distance, distance, distance, spm.getLatitude(), spm.getLongitude(), "", location);
+                            restClient.getApiService().postEvent(eventName, distance, timeSinceEvent, spaceAccuracy, timeAccuracy, spm.getLatitude(), spm.getLongitude(), "osmId", location);
 
                         } catch (Exception e) {
 
