@@ -57,7 +57,7 @@ public class EventsFragment extends PreferenceFragment{
                 final String eventName = getEventName(eventsCheckBoxes);
 
                 // get the details
-                if(eventDetails.isEnabled() && eventDetails.getText().compareTo("") != 0 ) {
+                if(eventDetails.isEnabled() && eventDetails.getText() != null && eventDetails.getText().compareTo("") != 0 ) {
                     String details = eventDetails.getText();
 
 
