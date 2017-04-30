@@ -108,6 +108,7 @@
     <string name="login_button_content">LOG IN</string>
     <string name="accept_policy_button_content"> ACCEPT POLICY </string>
     <string name="create_account_button_content"> CREATE ACCOUNT </string>
+    <string name="reset_password">Reset password</string>
     <string name="create_account_action_bar_content">Create Account</string>
     <string name="authentication_error">E-mail or password is incorrect!</string>
     <string name="firstName">First name</string>

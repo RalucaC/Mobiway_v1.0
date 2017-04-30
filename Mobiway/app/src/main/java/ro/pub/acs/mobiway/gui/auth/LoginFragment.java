@@ -124,6 +124,10 @@ public class LoginFragment extends Fragment {
                                         }
                                     });
                                     dismissDialog();
+
+                                    // show reset password button
+                                    Button resetButton = (Button) getActivity().findViewById(R.id.reset_password_button);
+                                    resetButton.setVisibility(View.VISIBLE);
                                 }
                             } catch (Exception e) {
 
@@ -146,6 +150,12 @@ public class LoginFragment extends Fragment {
                     fragmentTransaction.replace(R.id.container, new CreateAccountUserFragment());
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
+                }
+                break;
+
+                case R.id.reset_password_button: {
+
+                    //todo
                 }
                 break;
             }

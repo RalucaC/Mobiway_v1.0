@@ -69,5 +69,12 @@
             style="@style/LoginLinkStyle"
             android:text="@string/create_account_button_content" />
 
+        <Button
+            android:id="@+id/reset_password_button"
+            style="@style/LoginButtonStyle"
+            android:text="@string/reset_password"
+            android:visibility="invisible" />
+
+
     </LinearLayout>
 </ScrollView>
