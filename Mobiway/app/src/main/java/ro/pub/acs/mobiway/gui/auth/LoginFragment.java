@@ -69,6 +69,7 @@ public class LoginFragment extends Fragment {
 
             //ACRA log
             ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick()", "method has been invoked");
+Log.d(TAG, v.getId() + " = dssa");
 
             switch (v.getId()) {
                 case R.id.login_button: {
@@ -155,7 +156,12 @@ public class LoginFragment extends Fragment {
 
                 case R.id.reset_password_button: {
 
-                    //todo
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                    fragmentTransaction.replace(R.id.container, new ResetPasswordFragment());
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
                 }
                 break;
             }
@@ -328,6 +334,9 @@ public class LoginFragment extends Fragment {
 
         Button createAccountButton = (Button) getActivity().findViewById(R.id.create_account_button);
         createAccountButton.setOnClickListener(buttonOnClickListener);
+
+        Button resetPasswordButton = (Button) getActivity().findViewById(R.id.reset_password_button);
+        resetPasswordButton.setOnClickListener(buttonOnClickListener);
 
         authErrorTextView = (TextView) getActivity().findViewById(R.id.auth_error_text_view);
         emailEditText = (EditText) getActivity().findViewById(R.id.username_edit_text);

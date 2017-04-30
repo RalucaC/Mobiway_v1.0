@@ -102,6 +102,7 @@
     <!-- Login & Create Account -->
     <string name="email_address">Email Address</string>
     <string name="password">Password</string>
+    <string name="retype_password">Retype Password</string>
     <string name="phone_number">Phone Number*</string>
     <string name="phone_number_explanation">*Your phone number is used to link you with your friends.
     Without it, you cannot see your friends in this app.</string>
