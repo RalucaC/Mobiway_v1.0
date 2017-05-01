@@ -69,6 +69,7 @@ public class LoginFragment extends Fragment {
 
             //ACRA log
             ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick()", "method has been invoked");
+            final Authentication authLib = new Authentication(getActivity());
 
             switch (v.getId()) {
                 case R.id.login_button: {
@@ -77,13 +78,12 @@ public class LoginFragment extends Fragment {
                     final String emailAddress = emailEditText.getText().toString();
                     final String password = passEditText.getText().toString();
 
-                    Authentication authLib = new Authentication();
-                    if(!authLib.isEmailValid(emailEditText, getActivity())) {
+                    if(!authLib.isEmailValid(emailEditText)) {
 
                         break;
                     }
 
-                    if(!authLib.isPasswordValid(passEditText, getActivity())) {
+                    if(!authLib.isPasswordValid(passEditText)) {
                         break;
                     }
 
@@ -91,7 +91,7 @@ public class LoginFragment extends Fragment {
                         @Override
                         public void run() {
                             try {
-                                showDialog();
+                                authLib.showDialog(pDialog);
 
                                 RestClient restClient = new RestClient();
                                 User user = new User();
@@ -107,14 +107,14 @@ public class LoginFragment extends Fragment {
                                     Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
                                     startActivity(intent);
                                     getActivity().finish();
-                                    dismissDialog();
+                                    authLib.dismissDialog(pDialog);
                                 } else {
                                     authErrorTextView.post(new Runnable() {
                                         public void run() {
                                             authErrorTextView.setVisibility(View.VISIBLE);
                                         }
                                     });
-                                    dismissDialog();
+                                    authLib.dismissDialog(pDialog);
 
                                     // show reset password button
                                     Button resetButton = (Button) getActivity().findViewById(R.id.reset_password_button);
@@ -126,7 +126,7 @@ public class LoginFragment extends Fragment {
                                 ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick():error", e.toString());
 
                                 e.printStackTrace();
-                                dismissDialog();
+                                authLib.dismissDialog(pDialog);
                             }
                         }
                     });
@@ -162,22 +162,6 @@ public class LoginFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public void showDialog(){
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                pDialog.show();
-            }
-        });
-    }
-
-    public void dismissDialog(){
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                pDialog.dismiss();
-            }
-        });
-    }
-
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle state) {
 
@@ -209,10 +193,11 @@ public class LoginFragment extends Fragment {
             public void onSuccess(LoginResult loginResult) {
                 long msNow = new Date().getTime();
                 long msExpiresIn = loginResult.getAccessToken().getExpires().getTime();
+                final Authentication authLib = new Authentication(getActivity());
 
                 accessToken = loginResult.getAccessToken().getToken();
                 tokenExpiresIn = (int)((msExpiresIn - msNow) / 1000);
-                showDialog();
+                authLib.showDialog(pDialog);
 
                 final GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
@@ -256,10 +241,10 @@ public class LoginFragment extends Fragment {
                                                         Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
                                                         startActivity(intent);
                                                         getActivity().finish();
-                                                        dismissDialog();
+                                                        authLib.dismissDialog(pDialog);
                                                     } else {
                                                         LoginManager.getInstance().logOut();
-                                                        dismissDialog();
+                                                        authLib.dismissDialog(pDialog);
                                                     }
                                                     Log.e(TAG, "authenticatedUser: " + result);
                                                 } catch (Exception e) {
@@ -269,7 +254,7 @@ public class LoginFragment extends Fragment {
 
                                                     e.printStackTrace();
                                                     LoginManager.getInstance().logOut();
-                                                    dismissDialog();
+                                                    authLib.dismissDialog(pDialog);
                                                 }
                                             }
                                         });
@@ -280,7 +265,7 @@ public class LoginFragment extends Fragment {
                                         ACRA.getErrorReporter().putCustomData("LoginFragment.onCreateView():error2", e.toString());
 
                                         e.printStackTrace();
-                                        dismissDialog();
+                                        authLib.dismissDialog(pDialog);
                                     }
                                 }
 

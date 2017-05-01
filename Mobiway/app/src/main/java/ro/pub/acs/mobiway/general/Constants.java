@@ -22,12 +22,14 @@ public abstract class Constants {
     public static final String APP_NAME     = "Mobiway";
     public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/MobiwayServer/services";
 
+
     public static final String URL_CHECK_SERVER_CONN    = "/checkServerConn";
     public static final String URL_CREATE_ACCOUNT       = "/signup/userpass";
     public static final String URL_GET_POLICY_APP       = "/authenticate/getPolicyListForApp";
     public static final String URL_GET_POLICY_USER_APP  = "/authenticate/getUserPolicyListForApp";
     public static final String URL_ACCEPT_POLICY_APP    = "/authenticate/acceptUserPolicyListForApp";
     public static final String URL_LOG_IN               = "/authenticate/userpass";
+    public static final String URL_RESET_PASSWORD       = "/authenticate/resetPassword";
     public static final String URL_AUTH_FACEBOOK        = "/authenticate/facebook";
     public static final String URL_UPDATE_USER          = "/user/update";
     public static final String URL_GET_USER             = "/user/getUser";

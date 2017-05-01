@@ -60,6 +60,9 @@ public interface MobiwayService {
     @POST(Constants.URL_LOG_IN)
     User loginUserPass(@Body User body);
 
+    @POST(Constants.URL_RESET_PASSWORD)
+    User resetUserPass(@Body User body);
+
     @Headers({
             "Content-Type: application/json",
             "Accept: application/json"

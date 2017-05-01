@@ -16,11 +16,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.acra.ACRA;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.lib.Authentication;
+import ro.pub.acs.mobiway.rest.RestClient;
+import ro.pub.acs.mobiway.rest.model.User;
 
 public class ResetPasswordFragment extends Fragment {
 
@@ -44,25 +48,17 @@ public class ResetPasswordFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public void dismissDialog(){
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                pDialog.dismiss();
-            }
-        });
-    }
-
     private class ResetPasswordButtonListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
 
-            Authentication authLib = new Authentication();
-            if(!authLib.isEmailValid(emailEditText, getActivity())) {
+            final Authentication authLib = new Authentication(getActivity());
+            if(!authLib.isEmailValid(emailEditText)) {
                 return;
             }
 
-            if(!authLib.isPasswordValid(passEditText, getActivity())) {
+            if(!authLib.isPasswordValid(passEditText)) {
                 return;
             }
 
@@ -70,14 +66,48 @@ public class ResetPasswordFragment extends Fragment {
 
                 // show error message
                 confirmPasswordErrorTextView.setVisibility(View.VISIBLE);
-                dismissDialog();
-            } else {
+                return;
 
-                // set error message invisible
-                confirmPasswordErrorTextView.setVisibility(View.INVISIBLE);
-
-                // call reset password API
             }
+
+            // set error message invisible
+            confirmPasswordErrorTextView.setVisibility(View.INVISIBLE);
+
+            // call reset password API
+            Thread thread = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    try {
+                        authLib.showDialog(pDialog);
+
+                        RestClient restClient = new RestClient();
+                        User user = new User();
+                        user.setUsername(emailEditText.getText().toString());
+                        user.setPassword(new String(Hex.encodeHex(DigestUtils.sha(passEditText.getText().toString()))));
+
+                        User result = restClient.getApiService().resetUserPass(user);
+
+                        if (result != null){
+
+                            // redirect to login form
+                            Intent intent = new Intent(getActivity().getApplicationContext(), AuthenticationActivity.class);
+                            startActivity(intent);
+                            getActivity().finish();
+                        } else {
+
+                            // show error
+                            authLib.dismissDialog(pDialog);
+                        }
+                    } catch (Exception e) {
+
+                        //ACRA log
+                        ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick():error", e.toString());
+                        authLib.dismissDialog(pDialog);
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
         }
     }
 
