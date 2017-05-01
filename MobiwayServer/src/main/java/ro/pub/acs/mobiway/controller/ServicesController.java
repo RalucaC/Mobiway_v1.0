@@ -317,6 +317,17 @@ public class ServicesController {
 
 		return oldUser;
 	}
+	
+	@RequestMapping(value = "/authenticate/resetPassword", method = RequestMethod.POST)
+	public @ResponseBody User resetPassword(@RequestBody User user) {
+		User oldUser = userDAO.get(user.getUsername());
+		if (oldUser == null) {
+			return null;
+		}
+		//todo
+		userDAO.update(oldUser);
+		return oldUser;
+	}
 
 	@RequestMapping(value = "/location/newJourney", method = RequestMethod.POST)
 	public @ResponseBody boolean newJourney(@RequestBody Integer userId,
