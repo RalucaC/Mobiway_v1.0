@@ -13,12 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.acra.ACRA;
 
 import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
+import ro.pub.acs.mobiway.lib.Authentication;
 
 public class ResetPasswordFragment extends Fragment {
 
@@ -27,6 +29,8 @@ public class ResetPasswordFragment extends Fragment {
 
     EditText emailEditText;
     EditText passEditText;
+    EditText confirmPassEditText;
+    TextView confirmPasswordErrorTextView;
 
     private static String emailAddress = Constants.EMPTY_STRING;
     private static String password = Constants.EMPTY_STRING;
@@ -39,10 +43,41 @@ public class ResetPasswordFragment extends Fragment {
     public ResetPasswordFragment() {
         // Required empty public constructor
     }
+
+    public void dismissDialog(){
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                pDialog.dismiss();
+            }
+        });
+    }
+
     private class ResetPasswordButtonListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
+
+            Authentication authLib = new Authentication();
+            if(!authLib.isEmailValid(emailEditText, getActivity())) {
+                return;
+            }
+
+            if(!authLib.isPasswordValid(passEditText, getActivity())) {
+                return;
+            }
+
+            if(!authLib.arePasswordsEqual(passEditText, confirmPassEditText)) {
+
+                // show error message
+                confirmPasswordErrorTextView.setVisibility(View.VISIBLE);
+                dismissDialog();
+            } else {
+
+                // set error message invisible
+                confirmPasswordErrorTextView.setVisibility(View.INVISIBLE);
+
+                // call reset password API
+            }
         }
     }
 
@@ -63,11 +98,10 @@ public class ResetPasswordFragment extends Fragment {
         Button nextButton = (Button) getActivity().findViewById(R.id.reset_password_next_button);
         nextButton.setOnClickListener(buttonOnClickListener);
 
-        emailEditText = (EditText) getActivity().findViewById(R.id.username_ca_edit_text);
-        passEditText = (EditText) getActivity().findViewById(R.id.password_ca_edit_text);
-
-//        emailEditText.setText(emailAddress);
-//        passEditText.setText(password);
+        emailEditText = (EditText) getActivity().findViewById(R.id.username_reset_edit_text);
+        passEditText = (EditText) getActivity().findViewById(R.id.password_reset_edit_text);
+        confirmPassEditText = (EditText) getActivity().findViewById(R.id.retype_password_reset_edit_text);
+        confirmPasswordErrorTextView = (TextView) getActivity().findViewById(R.id.password_match_error_text_view);
 
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle(getActivity().getString(R.string.reset_password));

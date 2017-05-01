@@ -36,10 +36,10 @@ import java.util.Arrays;
 import java.util.Date;
 
 import ro.pub.acs.mobiway.R;
-import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.general.Util;
 import ro.pub.acs.mobiway.gui.main.MainActivity;
+import ro.pub.acs.mobiway.lib.Authentication;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.User;
 
@@ -69,7 +69,6 @@ public class LoginFragment extends Fragment {
 
             //ACRA log
             ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick()", "method has been invoked");
-Log.d(TAG, v.getId() + " = dssa");
 
             switch (v.getId()) {
                 case R.id.login_button: {
@@ -78,22 +77,13 @@ Log.d(TAG, v.getId() + " = dssa");
                     final String emailAddress = emailEditText.getText().toString();
                     final String password = passEditText.getText().toString();
 
-                    if (emailAddress.equals(Constants.EMPTY_STRING)) {
-                        emailEditText.setHintTextColor(getActivity().getResources().getColor(R.color.custom_hint_text_color));
-                        emailEditText.setHint(getActivity().getResources().getString(R.string.emailAddressRequired));
+                    Authentication authLib = new Authentication();
+                    if(!authLib.isEmailValid(emailEditText, getActivity())) {
+
                         break;
-                    } else {
-                        if(!Util.emailValidator(emailAddress)){
-                            emailEditText.setText(Constants.EMPTY_STRING);
-                            emailEditText.setHintTextColor(getActivity().getResources().getColor(R.color.custom_hint_text_color));
-                            emailEditText.setHint(getActivity().getResources().getString(R.string.emailAddressNotValid));
-                            break;
-                        }
                     }
 
-                    if (password.equals(Constants.EMPTY_STRING)) {
-                        passEditText.setHintTextColor(getActivity().getResources().getColor(R.color.custom_hint_text_color));
-                        passEditText.setHint(getActivity().getResources().getString(R.string.passwordRequired));
+                    if(!authLib.isPasswordValid(passEditText, getActivity())) {
                         break;
                     }
 

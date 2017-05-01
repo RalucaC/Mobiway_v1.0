@@ -112,6 +112,7 @@
     <string name="reset_password">Reset password</string>
     <string name="create_account_action_bar_content">Create Account</string>
     <string name="authentication_error">E-mail or password is incorrect!</string>
+    <string name="password_match_error">Password does not match the confirm password</string>
     <string name="firstName">First name</string>
     <string name="lastName">Last name</string>
     <string name="done">DONE</string>
