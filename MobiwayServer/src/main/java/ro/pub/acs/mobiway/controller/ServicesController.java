@@ -84,7 +84,7 @@ public class ServicesController {
 	private UserEventDAO userEventDAO;
 
 	@SuppressWarnings({ "deprecation", "resource" })
-	@RequestMapping(value = "/location/getEvent/{latitude}/{longitude}", method = RequestMethod.GET)
+	@RequestMapping(value = "/location/getEvent/{idUser}/{latitude}/{longitude}", method = RequestMethod.GET)
 	public @ResponseBody List<UserEvent> getEvent(
 			@PathVariable Integer idUser,
 			@PathVariable Float latitude,
@@ -107,16 +107,13 @@ public class ServicesController {
 	}
 	
 	@SuppressWarnings({ "deprecation", "resource" })
-	@RequestMapping(value = "/location/postEvent/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}/{latitude}/{longitude}/{osmWayId}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/location/postEvent/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}", method = RequestMethod.PUT)
 	public @ResponseBody boolean postEvent(
 			@PathVariable String eventName,
 			@PathVariable Float distance,
 			@PathVariable Float timeSinceEvent,
 			@PathVariable Float spaceAccuracy,
 			@PathVariable Float timeAccuracy,
-			@PathVariable Double latitude,
-			@PathVariable Double longitude,
-			@PathVariable String osmWayId,
 			@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {
 
@@ -131,6 +128,7 @@ public class ServicesController {
 		}
 
 		Date currentDate = new Date();
+		String osmWayId = getOSMId(location);
 
 		UserEvent event = new UserEvent();
 		event.setIdUser(user);
@@ -139,8 +137,8 @@ public class ServicesController {
 		event.setDistance(distance);
 		event.setSpaceAccuracy(spaceAccuracy);
 		event.setTimeAccuracy(timeAccuracy);
-		event.setLatitude(latitude);
-		event.setLongitude(longitude);
+		event.setLatitude((double)location.getLatitude());
+		event.setLongitude((double)location.getLongitude());
 		event.setOsmWayId(osmWayId);
 		userEventDAO.add(event);
 
