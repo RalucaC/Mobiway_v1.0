@@ -19,8 +19,8 @@ import ro.pub.acs.mobiway.rest.RestClient;
 public class EventsFragment extends PreferenceFragment{
 
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
-    private final String eventNamePolice = "police";
-    private final String eventNameTrafficJam = "traffic_jam";
+    private final String eventNamePolice = "road_blocked";
+    private final String eventNameTrafficJam = "car_accident";
     private static final String TAG = EventsFragment.class.getSimpleName();
 
     public EventsFragment() {
@@ -81,14 +81,15 @@ public class EventsFragment extends PreferenceFragment{
                             Float timeAccuracy = Float.valueOf("0");
 
                             final ro.pub.acs.mobiway.rest.model.Location location = new ro.pub.acs.mobiway.rest.model.Location();
+                            location.setIdUser(spm.getAuthUserId());
+                            location.setLatitude((float)spm.getLatitude());
+                            location.setLongitude((float)spm.getLongitude());
+
 //                @Path ("eventName") String eventName,
 //                @Path ("distance") Float distance,
 //                @Path("timeSinceEvent") Float timeSinceEvent,
 //                @Path ("spaceAccuracy") Float spaceAccuracy,
 //                @Path ("timeAccuracy") Float timeAccuracy,
-//                @Path ("latitude") Float latitude,
-//                @Path ("longitude") Float longitude,
-//                @Path ("osmWayId") String osmWayId
                             Log.v(TAG, "eventName" + eventName);
                             Log.v(TAG, "distance" + distance);
                             Log.v(TAG, "timeSinceEvent" + timeSinceEvent);
@@ -97,7 +98,7 @@ public class EventsFragment extends PreferenceFragment{
 
                             // send event to the server
                             RestClient restClient = new RestClient();
-                            restClient.getApiService().postEvent(eventName, distance, timeSinceEvent, spaceAccuracy, timeAccuracy, spm.getLatitude(), spm.getLongitude(), "osmId", location);
+                            restClient.getApiService().postEvent(eventName, distance, timeSinceEvent, spaceAccuracy, timeAccuracy, location);
 
                         } catch (Exception e) {
 

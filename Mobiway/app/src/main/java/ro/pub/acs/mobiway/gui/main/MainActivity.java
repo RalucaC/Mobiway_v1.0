@@ -797,7 +797,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             public void run() {
                 try {
                     RestClient restClient = new RestClient();
-                    List<Place> result = restClient.getApiService().getEvent(spm.getLatitude(), spm.getLongitude());
+                    List<Place> result = restClient.getApiService().getEvent(spm.getAuthUserId(), spm.getLatitude(), spm.getLongitude());
 
                     showPlacesOnMap(result);
                 } catch (Exception e) {
