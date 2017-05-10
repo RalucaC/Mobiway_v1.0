@@ -180,7 +180,7 @@ public class ServicesController {
 
 		return newUser;
 	}
-	
+
 	@RequestMapping(
 		value = "/authenticate/getPolicyListForApp/{appId}",
 		method = RequestMethod.GET)
@@ -322,7 +322,8 @@ public class ServicesController {
 		if (oldUser == null) {
 			return null;
 		}
-		//todo
+
+                oldUser.setPassword(user.getPassword());
 		userDAO.update(oldUser);
 		return oldUser;
 	}
