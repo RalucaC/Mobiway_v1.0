@@ -12,16 +12,16 @@
         android:title="@string/event_type">
 
         <CheckBoxPreference
-            android:id="@+id/checkbox_preference_police"
-            android:key="checkbox_preference_police"
+            android:id="@+id/checkbox_preference_car_accident"
+            android:key="checkbox_preference_car_accident"
             android:state_checked="false"
-            android:title="@string/police"/>
+            android:title="@string/car_accident"/>
 
         <CheckBoxPreference
-            android:id="@+id/checkbox_preference_traffic_jam"
-            android:key="checkbox_preference_traffic_jam"
+            android:id="@+id/checkbox_preference_road_blocked"
+            android:key="checkbox_preference_road_blocked"
             android:state_checked="false"
-            android:title="@string/traffic_jam"/>
+            android:title="@string/road_blocked"/>
 
         <EditTextPreference
             android:id="@+id/policy_details"

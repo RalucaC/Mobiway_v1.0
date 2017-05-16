@@ -41,8 +41,8 @@
 
     // Events
     <string name="send_event">Post event</string>
-    <string name="police">Police</string>
-    <string name="traffic_jam">Traffic Jam</string>
+    <string name="car_accident">Car accident</string>
+    <string name="road_blocked">Road blocked</string>
     <string name="event_pothole">Pothole</string>
     <string name="events">Events</string>
     <string name="event_add_details">Add details</string>

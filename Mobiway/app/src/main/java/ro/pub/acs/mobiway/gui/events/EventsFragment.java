@@ -19,8 +19,8 @@ import ro.pub.acs.mobiway.rest.RestClient;
 public class EventsFragment extends PreferenceFragment{
 
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
-    private final String eventNamePolice = "road_blocked";
-    private final String eventNameTrafficJam = "car_accident";
+    private final String eventNameRoadBlocked = "road_blocked";
+    private final String eventNameCarAccident = "car_accident";
     private static final String TAG = EventsFragment.class.getSimpleName();
 
     public EventsFragment() {
@@ -38,8 +38,8 @@ public class EventsFragment extends PreferenceFragment{
 
         final ArrayList<CheckBoxPreference> eventsCheckBoxes = new ArrayList<>();
 
-        final CheckBoxPreference policyCheckbox = (CheckBoxPreference) findPreference("checkbox_preference_police");
-        final CheckBoxPreference trafficCheckbox = (CheckBoxPreference) findPreference("checkbox_preference_traffic_jam");
+        final CheckBoxPreference policyCheckbox = (CheckBoxPreference) findPreference("checkbox_preference_car_accident");
+        final CheckBoxPreference trafficCheckbox = (CheckBoxPreference) findPreference("checkbox_preference_road_blocked");
 
         eventsCheckBoxes.add(policyCheckbox);
         eventsCheckBoxes.add(trafficCheckbox);
@@ -76,7 +76,7 @@ public class EventsFragment extends PreferenceFragment{
                         try {
 
                             Float distance = Float.valueOf("0");
-                            Float timeSinceEvent = Float.valueOf("100");
+                            Float timeSinceEvent = Float.valueOf("60");
                             Float spaceAccuracy = Float.valueOf("10");
                             Float timeAccuracy = Float.valueOf("0");
 
@@ -85,11 +85,6 @@ public class EventsFragment extends PreferenceFragment{
                             location.setLatitude((float)spm.getLatitude());
                             location.setLongitude((float)spm.getLongitude());
 
-//                @Path ("eventName") String eventName,
-//                @Path ("distance") Float distance,
-//                @Path("timeSinceEvent") Float timeSinceEvent,
-//                @Path ("spaceAccuracy") Float spaceAccuracy,
-//                @Path ("timeAccuracy") Float timeAccuracy,
                             Log.v(TAG, "eventName" + eventName);
                             Log.v(TAG, "distance" + distance);
                             Log.v(TAG, "timeSinceEvent" + timeSinceEvent);
@@ -148,11 +143,11 @@ public class EventsFragment extends PreferenceFragment{
 
         for (CheckBoxPreference checkbox : eventsCheckboxes) {
             if(checkbox.isChecked()) {
-                if(checkbox.getKey().compareTo("checkbox_preference_police") == 0) {
-                    return eventNamePolice;
+                if(checkbox.getKey().compareTo("checkbox_preference_car_accident") == 0) {
+                    return eventNameCarAccident;
                 }
-                if(checkbox.getKey().compareTo("checkbox_preference_traffic_jam") == 0) {
-                    return eventNameTrafficJam;
+                if(checkbox.getKey().compareTo("checkbox_preference_road_blocked") == 0) {
+                    return eventNameRoadBlocked;
                 }
             }
         }
