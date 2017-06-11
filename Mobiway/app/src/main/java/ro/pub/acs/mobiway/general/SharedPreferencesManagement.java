@@ -131,15 +131,6 @@ public class SharedPreferencesManagement {
         editor.commit();
     }
 
-    public String getLocationHistory() {
-        return pref.getString(Constants.KEY_LOCATION_HISTORY, Constants.EMPTY_ARRAY);
-    }
-
-    public void setLocationHistory(String locationHistory) {
-        editor.putString(Constants.KEY_LOCATION_HISTORY, locationHistory);
-        editor.commit();
-    }
-
     public double getLatitude() {
         return pref.getFloat(Constants.KEY_LATITUDE, 0);
     }

@@ -486,110 +486,51 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         location.setLongitude(spm.getShareLocationEnabled() ? (float) longitude : null);
         location.setSpeed(spm.getShareSpeedEnabled() ? (int) speed : null);
         location.setIdUser(spm.getAuthUserId());
-        //location.setTimestamp(new Date());
+        location.setTimestamp(new Date());
 
         if (spm.getNotificationsEnabled() &&
                 lastLocation != null && oldLocation != null &&
                 (lastLocation.getLatitude() != oldLocation.getLatitude() ||
                         lastLocation.getLongitude() != oldLocation.getLatitude())) {
 
-            Thread thread = new Thread(new Runnable() {
+            Thread threadDb = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        Log.v(TAG, "Uploading location " + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
-                        saveLocationInLocalStorage(location);
-                        RestClient restClient = new RestClient();
-                        restClient.getApiService().updateLocation(location);
-                    } catch (Exception e) {
-                        //ACRA log
-                        ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorSetLocation1", e.toString());
-                        e.printStackTrace();
-                        saveLocationOffline(location);
-                    }
+                    Log.v(TAG, "Save location in local storage:" + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
+                    saveLocationInLocalStorage(location);
                 }
             });
-            thread.start();
+            threadDb.start();
 
-            readLocationsFromLocalStorage();
+            final ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationsFromDb = readLocationsFromLocalStorage();
 
-            if (!Constants.EMPTY_ARRAY.equals(spm.getLocationHistory())) {
-                Thread thread2 = new Thread(new Runnable() {
+            if (!locationsFromDb.isEmpty()) {
+                Thread threadCall = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        ArrayList<Integer> uploaded = new ArrayList<>();
-                        try {
-                            JSONArray jsonArray = new JSONArray(spm.getLocationHistory());
+                        try{
 
-                            try {
-                                ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocation = new ArrayList<>();
+                            RestClient restClient = new RestClient();
 
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONArray savedLocation = jsonArray.getJSONArray(i);
-                                    ro.pub.acs.mobiway.rest.model.Location savedRestLocation = new ro.pub.acs.mobiway.rest.model.Location();
+                            Log.d(TAG, "Update locations");
+                            restClient.getApiService().updateLocations(locationsFromDb);
 
-                                    Float latitude = Float.parseFloat(savedLocation.get(0) + "");
-                                    Float longitude = Float.parseFloat(savedLocation.get(1) + "");
-                                    Integer speed = (int) savedLocation.get(2);
+                            Log.d(TAG, "Remove locations");
+                            removeLocationsFromLocalStorage();
 
-                                    savedRestLocation.setLatitude(latitude == Float.MIN_VALUE ? null : latitude);
-                                    savedRestLocation.setLongitude(longitude == Float.MIN_VALUE ? null : longitude);
-                                    savedRestLocation.setSpeed(speed == Integer.MIN_VALUE ? null : speed);
-                                    savedRestLocation.setTimestamp(sdf.parse(savedLocation.getString(3)));
-                                    savedRestLocation.setIdUser(spm.getAuthUserId());
-
-                                    Log.v(TAG, "Uploading saved location " + savedRestLocation.getLatitude() + " " + savedRestLocation.getLongitude() + " " +
-                                            savedRestLocation.getSpeed() + " " + savedRestLocation.getIdUser() + savedRestLocation.getTimestamp());
-
-                                    aLocation.add(savedRestLocation);
-                                }
-
-                                RestClient restClient = new RestClient();
-                                restClient.getApiService().updateLocations(aLocation);
-                                spm.setLocationHistory(Constants.EMPTY_ARRAY);
-                            } catch (Exception e) {
-
-                                //ACRA log
-                                ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorSetLocation2", e.toString());
-
-                                e.printStackTrace();
-                            }
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
 
                             //ACRA log
-                            ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx1", e.toString());
+                            ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorSetLocation2", e.toString());
 
                             e.printStackTrace();
                         }
                     }
                 });
-                thread2.start();
+                threadCall.start();
             }
         } else {
-            saveLocationOffline(location);
-        }
-    }
-
-    private void saveLocationOffline(ro.pub.acs.mobiway.rest.model.Location location) {
-        Log.v(TAG, "Saving location " + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
-
-        try {
-            JSONArray jsonArray = new JSONArray(spm.getLocationHistory());
-
-            JSONArray aLocation = new JSONArray();
-            aLocation.put(location.getLatitude() == null ? Float.MIN_VALUE : location.getLatitude());
-            aLocation.put(location.getLongitude() == null ? Float.MIN_VALUE : location.getLongitude());
-            aLocation.put(location.getSpeed() == null ? Integer.MIN_VALUE : location.getSpeed());
-            aLocation.put(sdf.format(new Date()));
-            jsonArray.put(aLocation);
-
-            spm.setLocationHistory(jsonArray.toString());
-        } catch (JSONException e) {
-
-            //ACRA log
-            ACRA.getErrorReporter().putCustomData("MainActivity.saveLocationOffline():errorJsonEx2", e.toString());
-
-            e.printStackTrace();
+            saveLocationInLocalStorage(location);
         }
     }
 
@@ -619,7 +560,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         }
     }
 
-    private ArrayList readLocationsFromLocalStorage(){
+    private ArrayList<ro.pub.acs.mobiway.rest.model.Location> readLocationsFromLocalStorage(){
+
         ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocation = new ArrayList<>();
         SQLiteDatabase db = sqlDbHelper.getReadableDatabase();
 
@@ -658,7 +600,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             savedDbLocation.setLatitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LATITUDE)));
             savedDbLocation.setLongitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LONGITUDE)));
             savedDbLocation.setSpeed(cursor.getInt(cursor.getColumnIndex(SQLiteDatabaseHelper.SPEED)));
-//            savedDbLocation.setTimestamp(cursor.get(cursor.getColumnIndex(SQLiteDatabaseHelper.DATE)));
+//            savedDbLocation.setTimestamp(new Date(cursor.getString(cursor.getColumnIndex(SQLiteDatabaseHelper.DATE))));
 
 
             aLocation.add(savedDbLocation);
@@ -666,6 +608,15 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         Log.d(TAG, aLocation + "");
         return aLocation;
+    }
+
+    private void removeLocationsFromLocalStorage(){
+
+        SQLiteDatabase db = sqlDbHelper.getReadableDatabase();
+        String[] arguments = {spm.getAuthUserId() + ""};
+
+        db.delete(SQLiteDatabaseHelper.LOCATION_TABLE_NAME, SQLiteDatabaseHelper.USER_ID+"=?", arguments);
+
     }
 
     private void navigateToLocation(Location location) {
