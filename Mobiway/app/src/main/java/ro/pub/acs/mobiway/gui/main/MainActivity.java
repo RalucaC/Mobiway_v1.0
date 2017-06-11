@@ -1,9 +1,12 @@
 package ro.pub.acs.mobiway.gui.main;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -73,6 +76,7 @@ import ro.pub.acs.mobiway.general.Util;
 import ro.pub.acs.mobiway.gui.events.EventsActivity;
 import ro.pub.acs.mobiway.gui.settings.SettingsActivity;
 import ro.pub.acs.mobiway.gui.statistics.StatisticsActivity;
+import ro.pub.acs.mobiway.lib.SQLiteDatabaseHelper;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.Place;
 import ro.pub.acs.mobiway.rest.model.Policy;
@@ -97,6 +101,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private Marker marker = null;
     private String destinationTitle;
     private LatLng latLngMarker;
+
+    private SQLiteDatabaseHelper sqlDbHelper = null;
 
     private SimpleDateFormat sdf;
 
@@ -180,6 +186,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         Log.i(TAG, "onCreate() callback method was invoked");
 
         super.onCreate(savedInstanceState);
+        sqlDbHelper = new SQLiteDatabaseHelper(getApplicationContext());
+
         setContentView(R.layout.activity_main);
         spm = new SharedPreferencesManagement(getApplicationContext());
         routingHelper = new RoutingHelper(this);
@@ -297,6 +305,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             stopLocationUpdates();
             googleApiClient.disconnect();
         }
+
+        // close the database
+        sqlDbHelper.close();
 
         googleApiClient = null;
         super.onDestroy();
@@ -487,7 +498,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 public void run() {
                     try {
                         Log.v(TAG, "Uploading location " + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
-
+                        saveLocationInLocalStorage(location);
                         RestClient restClient = new RestClient();
                         restClient.getApiService().updateLocation(location);
                     } catch (Exception e) {
@@ -499,6 +510,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 }
             });
             thread.start();
+
+            readLocationsFromLocalStorage();
 
             if (!Constants.EMPTY_ARRAY.equals(spm.getLocationHistory())) {
                 Thread thread2 = new Thread(new Runnable() {
@@ -574,10 +587,85 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         } catch (JSONException e) {
 
             //ACRA log
-            ACRA.getErrorReporter().putCustomData("MainActivity.navigateToLocation():errorJsonEx2", e.toString());
+            ACRA.getErrorReporter().putCustomData("MainActivity.saveLocationOffline():errorJsonEx2", e.toString());
 
             e.printStackTrace();
         }
+    }
+
+    private void saveLocationInLocalStorage(ro.pub.acs.mobiway.rest.model.Location location) {
+
+        try{
+
+            // Gets the data repository in write mode
+            SQLiteDatabase db = sqlDbHelper.getWritableDatabase();
+
+            // Create a new map of values, where column names are the keys
+            ContentValues values = new ContentValues();
+            values.put(SQLiteDatabaseHelper.USER_ID, location.getIdUser());
+            values.put(SQLiteDatabaseHelper.LONGITUDE, location.getLongitude());
+            values.put(SQLiteDatabaseHelper.LATITUDE, location.getLatitude());
+            values.put(SQLiteDatabaseHelper.SPEED, location.getSpeed());
+            values.put(SQLiteDatabaseHelper.DATE, sdf.format(new Date()));
+
+            // Insert the new row, returning the primary key value of the new row
+            long newRowId = db.insert(SQLiteDatabaseHelper.LOCATION_TABLE_NAME, null, values);
+
+        } catch (Exception e) {
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("MainActivity.saveLocationInLocalStorage():error", e.toString());
+
+            e.printStackTrace();
+        }
+    }
+
+    private ArrayList readLocationsFromLocalStorage(){
+        ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocation = new ArrayList<>();
+        SQLiteDatabase db = sqlDbHelper.getReadableDatabase();
+
+// Define a projection that specifies which columns from the database
+// you will actually use after this query.
+        String[] projection = {
+                SQLiteDatabaseHelper.USER_ID,
+                SQLiteDatabaseHelper.LONGITUDE,
+                SQLiteDatabaseHelper.LATITUDE,
+                SQLiteDatabaseHelper.SPEED,
+                SQLiteDatabaseHelper.DATE
+        };
+
+// Filter results WHERE "title" = 'My Title'
+        String selection = SQLiteDatabaseHelper.USER_ID + " = ?";
+        String[] selectionArgs = {spm.getAuthUserId() + ""};
+
+// How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                SQLiteDatabaseHelper.DATE + " DESC";
+
+        Cursor cursor = db.query(
+                SQLiteDatabaseHelper.LOCATION_TABLE_NAME,                     // The table to query
+                projection,                               // The columns to return
+                selection,                                // The columns for the WHERE clause
+                selectionArgs,                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            // The Cursor is now set to the right position
+            ro.pub.acs.mobiway.rest.model.Location savedDbLocation = new ro.pub.acs.mobiway.rest.model.Location();
+            savedDbLocation.setIdUser(cursor.getInt(cursor.getColumnIndex(SQLiteDatabaseHelper.USER_ID)));
+            savedDbLocation.setLatitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LATITUDE)));
+            savedDbLocation.setLongitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LONGITUDE)));
+            savedDbLocation.setSpeed(cursor.getInt(cursor.getColumnIndex(SQLiteDatabaseHelper.SPEED)));
+//            savedDbLocation.setTimestamp(cursor.get(cursor.getColumnIndex(SQLiteDatabaseHelper.DATE)));
+
+
+            aLocation.add(savedDbLocation);
+        }
+
+        Log.d(TAG, aLocation + "");
+        return aLocation;
     }
 
     private void navigateToLocation(Location location) {
@@ -798,6 +886,20 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 try {
                     RestClient restClient = new RestClient();
                     List<Place> result = restClient.getApiService().getEvent(spm.getAuthUserId(), spm.getLatitude(), spm.getLongitude());
+
+                    Place p = new Place();
+                    p.setType("road_blocked");
+                    p.setName("Road blocked");
+                    p.setLatitude((float)(spm.getLatitude() - 0.00200));
+                    p.setLongitude((float)(spm.getLongitude() - 0.00010));
+                    result.add(p);
+
+                    Place p2 = new Place();
+                    p2.setType("car_accident");
+                    p2.setName("Car accident");
+                    p2.setLatitude((float)(spm.getLatitude() + 0.00000));
+                    p2.setLongitude((float)(spm.getLongitude() + 0.00310));
+                    result.add(p2);
 
                     showPlacesOnMap(result);
                 } catch (Exception e) {
@@ -1160,8 +1262,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             return BitmapDescriptorFactory.fromResource(R.drawable.theater);
         } else if ("university".equals(type)) {
             return BitmapDescriptorFactory.fromResource(R.drawable.university);
-        } else if ("traffic_jam".equals(type)) {
+        } else if ("road_blocked".equals(type)) {
             return BitmapDescriptorFactory.fromResource(R.drawable.traffic_jam);
+        } else if ("car_accident".equals(type)) {
+            return BitmapDescriptorFactory.fromResource(R.drawable.car_accident);
         }
 
         return (BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
