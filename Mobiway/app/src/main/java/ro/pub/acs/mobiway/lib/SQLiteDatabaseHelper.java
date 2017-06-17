@@ -14,13 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
+import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.Location;
 import ro.pub.acs.mobiway.rest.model.User;
 
-/**
- * Created by rconstanda on 6/1/2017.
- */
 public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = SQLiteDatabaseHelper.class.getSimpleName();
@@ -62,8 +59,8 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
     // Create unregisteredUsers TABLE
     private static final String UNREGISTERED_USERS_TABLE_CREATE =
             "CREATE TABLE " + UNREGISTERED_USERS_TABLE_NAME + " (" +
-                    EMAIL       + " TEXT, " +
-                    PASSWORD    + " TEXT "  +
+                    EMAIL       + " TEXT, "  +
+                    PASSWORD    + " TEXT "   +
                     ");";
 
     // Drop unregisteredUsers table
@@ -123,11 +120,10 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public ArrayList<Location> readLocations(Context context){
+    public ArrayList<Location> readLocations(String userId){
 
         ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocation = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        SharedPreferencesManagement spm = new SharedPreferencesManagement(context);
 
 // Define a projection that specifies which columns from the database
 // you will actually use after this query.
@@ -135,7 +131,7 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
 // Filter results WHERE "title" = 'My Title'
         String selection = USER_ID + " = ?";
-        String[] selectionArgs = {spm.getAuthUserId() + ""};
+        String[] selectionArgs = {userId};
 
 // How you want the results sorted in the resulting Cursor
         String sortOrder = DATE + " DESC";
@@ -175,11 +171,10 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         return aLocation;
     }
 
-    public void removeLocations(Context context){
+    public void removeLocations(String userId){
 
         SQLiteDatabase db = this.getReadableDatabase();
-        SharedPreferencesManagement spm = new SharedPreferencesManagement(context);
-        String[] arguments = {spm.getAuthUserId() + ""};
+        String[] arguments = {userId};
 
         db.delete(LOCATION_TABLE_NAME, USER_ID + "=?", arguments);
 
@@ -208,4 +203,71 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void readUsersAndSendLocations(){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] projection = { EMAIL, PASSWORD};
+
+        Cursor cursor = db.query(
+                UNREGISTERED_USERS_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                null,                                // The columns for the WHERE clause
+                null,                            // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                      // The sort order
+        );
+
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+
+            // The Cursor is now set to the right position
+            User savedDbUser = new User();
+            savedDbUser.setUsername(cursor.getString(cursor.getColumnIndex(EMAIL)));
+            savedDbUser.setPassword(cursor.getString(cursor.getColumnIndex(PASSWORD)));
+
+            // try to authenticate user
+            try{
+
+                RestClient restClient = new RestClient();
+                User result = restClient.getApiService().loginUserPass(savedDbUser);
+
+                if(result == null) {
+                    continue;
+                }
+                // send saved locations
+                ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocations = this.readLocations("-1");
+
+                for(Location location: aLocations) {
+
+                    // set new user id
+                    location.setIdUser(result.getId());
+                }
+
+                try {
+
+                    Log.d(TAG, "Update locations");
+                    restClient.getApiService().updateLocations(aLocations);
+
+                } catch (Exception e) {
+                    // do nothing
+                }
+
+            } catch (Exception e) {
+                //do nothing
+            }
+        }
+
+        Log.d(TAG, "Remove locations");
+        this.removeLocations("-1");
+
+        Log.d(TAG, "Remove locations");
+        this.removeUsers();
+    }
+
+    public void removeUsers(){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.delete(UNREGISTERED_USERS_TABLE_NAME, null, null);
+    }
 }
+

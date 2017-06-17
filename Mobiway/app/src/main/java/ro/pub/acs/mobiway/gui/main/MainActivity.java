@@ -504,7 +504,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             });
             threadDb.start();
 
-            final ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationsFromDb = sqlDbHelper.readLocations(getApplicationContext());
+            final ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationsFromDb = sqlDbHelper.readLocations(spm.getAuthToken()+"");
 
             if (!locationsFromDb.isEmpty()) {
                 Thread threadCall = new Thread(new Runnable() {
@@ -521,7 +521,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             }
 
                             Log.d(TAG, "Remove locations");
-                            sqlDbHelper.removeLocations(getApplicationContext());
+                            sqlDbHelper.removeLocations(spm.getAuthToken() + "");
 
                         } catch (Exception e) {
 

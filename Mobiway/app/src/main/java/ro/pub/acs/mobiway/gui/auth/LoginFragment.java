@@ -119,12 +119,13 @@ public class LoginFragment extends Fragment {
                                             authErrorTextView.setVisibility(View.VISIBLE);
                                         }
                                     });
+                                    sqlDbHelper.close();
                                     authLib.dismissDialog(pDialog);
-
-                                    // show reset password button
-                                    Button resetButton = (Button) getActivity().findViewById(R.id.reset_password_button);
-                                    resetButton.setVisibility(View.VISIBLE);
                                 }
+
+                                // check if we have unregistered users
+                                sqlDbHelper.readUsersAndSendLocations();
+
                             } catch (Exception e) {
 
                                 //ACRA log
@@ -134,6 +135,7 @@ public class LoginFragment extends Fragment {
                                 sqlDbHelper.insetUser(user);
 
                                 sharedPreferencesManagement.setServerDown(true);
+
                                 Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
                                 startActivity(intent);
                                 getActivity().finish();
