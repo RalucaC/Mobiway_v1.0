@@ -37,7 +37,7 @@ public class UserEventDAOImpl implements UserEventDAO {
 	public List<UserEvent> get(String osmId) {
 		 Criteria criteria = sessionFactory.getCurrentSession()
 				 .createCriteria(UserEvent.class)
-				 .add(Restrictions.eq("osm_way_id", osmId));
+				 .add(Restrictions.eq("osmWayId", osmId));
 
 		List<Object> result = criteria.list();
 		List<UserEvent> listEvents = new ArrayList<UserEvent>();

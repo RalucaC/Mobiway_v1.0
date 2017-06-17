@@ -84,21 +84,15 @@ public class ServicesController {
 	private UserEventDAO userEventDAO;
 
 	@SuppressWarnings({ "deprecation", "resource" })
-	@RequestMapping(value = "/location/getEvent/{idUser}/{latitude}/{longitude}", method = RequestMethod.GET)
+	@RequestMapping(value = "/location/getEvent", method = RequestMethod.PUT)
 	public @ResponseBody List<UserEvent> getEvent(
-			@PathVariable Integer idUser,
-			@PathVariable Float latitude,
-			@PathVariable Float longitude,
+			@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {
 
-		User user = userDAO.get(authToken, idUser);
+		User user = userDAO.get(authToken, location.getIdUser());
 		if (user == null) {
 			return null;
 		}
-
-		Location location = new Location();
-		location.setLatitude(latitude);
-		location.setLongitude(longitude);
 
 		String osmId = getOSMId(location);
 		List<UserEvent> event = userEventDAO.get(osmId);
