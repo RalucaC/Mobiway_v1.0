@@ -513,7 +513,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             RestClient restClient = new RestClient();
 
                             Log.d(TAG, "Update locations");
-                            restClient.getApiService().updateLocations(locationsFromDb);
+//                            restClient.getApiService().updateLocations(locationsFromDb);
 
                             Log.d(TAG, "Remove locations");
                             removeLocationsFromLocalStorage();
@@ -836,23 +836,14 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             public void run() {
                 try {
                     RestClient restClient = new RestClient();
-                    List<Place> result = restClient.getApiService().getEvent(spm.getAuthUserId(), spm.getLatitude(), spm.getLongitude());
+                    final ro.pub.acs.mobiway.rest.model.Location location = new ro.pub.acs.mobiway.rest.model.Location();
+                    location.setIdUser(spm.getAuthUserId());
+                    location.setLatitude((float)spm.getLatitude());
+                    location.setLongitude((float)spm.getLongitude());
 
-                    Place p = new Place();
-                    p.setType("road_blocked");
-                    p.setName("Road blocked");
-                    p.setLatitude((float)(spm.getLatitude() - 0.00200));
-                    p.setLongitude((float)(spm.getLongitude() - 0.00010));
-                    result.add(p);
-
-                    Place p2 = new Place();
-                    p2.setType("car_accident");
-                    p2.setName("Car accident");
-                    p2.setLatitude((float)(spm.getLatitude() + 0.00000));
-                    p2.setLongitude((float)(spm.getLongitude() + 0.00310));
-                    result.add(p2);
-
+                    List<Place> result = restClient.getApiService().getEvent(location);
                     showPlacesOnMap(result);
+
                 } catch (Exception e) {
 
                     //ACRA log
@@ -869,6 +860,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             @Override
             public void run() {
                 for (Place place : places) {
+                    Log.e(TAG, place.getType() + "type");
+                    Log.e(TAG, place.getName() + "name");
+
+                    Log.e(TAG, place.getLatitude() + "lat");
+                    Log.e(TAG, place.getLongitude() + "long");
                     googleMap.addMarker(new MarkerOptions()
                             .title(place.getName())
                             .alpha(1f)

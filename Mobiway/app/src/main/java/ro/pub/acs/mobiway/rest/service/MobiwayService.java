@@ -180,12 +180,11 @@ public interface MobiwayService {
           @Body Location location
     );
 
-
-    @GET(Constants.URL_GET_EVENT + "/{userId}/{latitude}/{longitude}")
-    List<Place> getEvent(
-            @Path("userId") int userId,
-            @Path("latitude") Double latitude,
-            @Path("longitude") Double longitude
-    );
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @PUT(Constants.URL_GET_EVENT)
+    List<Place> getEvent(@Body Location location);
 
 }
