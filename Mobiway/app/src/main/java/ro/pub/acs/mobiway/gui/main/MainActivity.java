@@ -59,6 +59,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -513,7 +515,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             RestClient restClient = new RestClient();
 
                             Log.d(TAG, "Update locations");
-//                            restClient.getApiService().updateLocations(locationsFromDb);
+                            restClient.getApiService().updateLocations(locationsFromDb);
 
                             Log.d(TAG, "Remove locations");
                             removeLocationsFromLocalStorage();
@@ -600,8 +602,17 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             savedDbLocation.setLatitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LATITUDE)));
             savedDbLocation.setLongitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LONGITUDE)));
             savedDbLocation.setSpeed(cursor.getInt(cursor.getColumnIndex(SQLiteDatabaseHelper.SPEED)));
-//            savedDbLocation.setTimestamp(new Date(cursor.getString(cursor.getColumnIndex(SQLiteDatabaseHelper.DATE))));
+            String dateTime = cursor.getString(cursor.getColumnIndex(SQLiteDatabaseHelper.DATE));
 
+            try {
+                DateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = iso8601Format.parse(dateTime);
+
+                savedDbLocation.setTimestamp(date);
+
+            } catch (ParseException e) {
+                Log.e(TAG, "Parsing ISO8601 datetime failed", e);
+            }
 
             aLocation.add(savedDbLocation);
         }
