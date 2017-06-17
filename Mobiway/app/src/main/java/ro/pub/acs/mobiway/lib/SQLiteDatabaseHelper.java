@@ -16,6 +16,7 @@ import java.util.Date;
 
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.rest.model.Location;
+import ro.pub.acs.mobiway.rest.model.User;
 
 /**
  * Created by rconstanda on 6/1/2017.
@@ -41,7 +42,6 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
     public static final String DATE            = "date";
 
     // Define unregisteredUsers collection's columns
-    public static final String NAME     = "name";
     public static final String EMAIL    = "email";
     public static final String PASSWORD = "password";
 
@@ -62,9 +62,8 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
     // Create unregisteredUsers TABLE
     private static final String UNREGISTERED_USERS_TABLE_CREATE =
             "CREATE TABLE " + UNREGISTERED_USERS_TABLE_NAME + " (" +
-                    NAME        + "TEXT, " +
-                    EMAIL       + "TEXT, " +
-                    PASSWORD    + "TEXT "  +
+                    EMAIL       + " TEXT, " +
+                    PASSWORD    + " TEXT "  +
                     ");";
 
     // Drop unregisteredUsers table
@@ -79,6 +78,9 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // drop older databases
+        db.execSQL(LOCATION_TABLE_DROP);
+        db.execSQL(UNREGISTERED_USERS_TABLE_DROP);
 
         db.execSQL(LOCATION_TABLE_CREATE);
         db.execSQL(UNREGISTERED_USERS_TABLE_CREATE);
@@ -88,14 +90,14 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         // drop older databases
-        db.execSQL("DROP TABLE IF EXISTS " + LOCATION_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + UNREGISTERED_USERS_TABLE_NAME);
+        db.execSQL(LOCATION_TABLE_DROP);
+        db.execSQL(UNREGISTERED_USERS_TABLE_DROP);
 
         // create new tables
         onCreate(db);
     }
 
-    public void saveLocationInLocalStorage(ro.pub.acs.mobiway.rest.model.Location location) {
+    public void insertLocation(ro.pub.acs.mobiway.rest.model.Location location) {
 
         try{
 
@@ -104,24 +106,24 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
             // Create a new map of values, where column names are the keys
             ContentValues values = new ContentValues();
-            values.put(SQLiteDatabaseHelper.USER_ID, location.getIdUser());
-            values.put(SQLiteDatabaseHelper.LONGITUDE, location.getLongitude());
-            values.put(SQLiteDatabaseHelper.LATITUDE, location.getLatitude());
-            values.put(SQLiteDatabaseHelper.SPEED, location.getSpeed());
-            values.put(SQLiteDatabaseHelper.DATE, simpleDateFormat.format(new Date()));
+            values.put(USER_ID, location.getIdUser());
+            values.put(LONGITUDE, location.getLongitude());
+            values.put(LATITUDE, location.getLatitude());
+            values.put(SPEED, location.getSpeed());
+            values.put(DATE, simpleDateFormat.format(new Date()));
 
             // Insert the new row, returning the primary key value of the new row
-            long newRowId = db.insert(SQLiteDatabaseHelper.LOCATION_TABLE_NAME, null, values);
+            long newRowId = db.insert(LOCATION_TABLE_NAME, null, values);
 
         } catch (Exception e) {
             //ACRA log
-            ACRA.getErrorReporter().putCustomData("MainActivity.saveLocationInLocalStorage():error", e.toString());
+            ACRA.getErrorReporter().putCustomData("SQLiteDatabaseHelper.saveLocationInLocalStorage():error", e.toString());
 
             e.printStackTrace();
         }
     }
 
-    public ArrayList<Location> readLocationsFromLocalStorage(Context context){
+    public ArrayList<Location> readLocations(Context context){
 
         ArrayList<ro.pub.acs.mobiway.rest.model.Location> aLocation = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -129,24 +131,17 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
 // Define a projection that specifies which columns from the database
 // you will actually use after this query.
-        String[] projection = {
-                SQLiteDatabaseHelper.USER_ID,
-                SQLiteDatabaseHelper.LONGITUDE,
-                SQLiteDatabaseHelper.LATITUDE,
-                SQLiteDatabaseHelper.SPEED,
-                SQLiteDatabaseHelper.DATE
-        };
+        String[] projection = { USER_ID, LONGITUDE, LATITUDE, SPEED, DATE };
 
 // Filter results WHERE "title" = 'My Title'
-        String selection = SQLiteDatabaseHelper.USER_ID + " = ?";
+        String selection = USER_ID + " = ?";
         String[] selectionArgs = {spm.getAuthUserId() + ""};
 
 // How you want the results sorted in the resulting Cursor
-        String sortOrder =
-                SQLiteDatabaseHelper.DATE + " DESC";
+        String sortOrder = DATE + " DESC";
 
         Cursor cursor = db.query(
-                SQLiteDatabaseHelper.LOCATION_TABLE_NAME,                     // The table to query
+                LOCATION_TABLE_NAME,                      // The table to query
                 projection,                               // The columns to return
                 selection,                                // The columns for the WHERE clause
                 selectionArgs,                            // The values for the WHERE clause
@@ -159,11 +154,11 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
             // The Cursor is now set to the right position
             ro.pub.acs.mobiway.rest.model.Location savedDbLocation = new ro.pub.acs.mobiway.rest.model.Location();
-            savedDbLocation.setIdUser(cursor.getInt(cursor.getColumnIndex(SQLiteDatabaseHelper.USER_ID)));
-            savedDbLocation.setLatitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LATITUDE)));
-            savedDbLocation.setLongitude(cursor.getFloat(cursor.getColumnIndex(SQLiteDatabaseHelper.LONGITUDE)));
-            savedDbLocation.setSpeed(cursor.getInt(cursor.getColumnIndex(SQLiteDatabaseHelper.SPEED)));
-            String dateTime = cursor.getString(cursor.getColumnIndex(SQLiteDatabaseHelper.DATE));
+            savedDbLocation.setIdUser(cursor.getInt(cursor.getColumnIndex(USER_ID)));
+            savedDbLocation.setLatitude(cursor.getFloat(cursor.getColumnIndex(LATITUDE)));
+            savedDbLocation.setLongitude(cursor.getFloat(cursor.getColumnIndex(LONGITUDE)));
+            savedDbLocation.setSpeed(cursor.getInt(cursor.getColumnIndex(SPEED)));
+            String dateTime = cursor.getString(cursor.getColumnIndex(DATE));
 
             try {
                 Date date = simpleDateFormat.parse(dateTime);
@@ -180,14 +175,37 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         return aLocation;
     }
 
-    public void removeLocationsFromLocalStorage(Context context){
+    public void removeLocations(Context context){
 
         SQLiteDatabase db = this.getReadableDatabase();
         SharedPreferencesManagement spm = new SharedPreferencesManagement(context);
         String[] arguments = {spm.getAuthUserId() + ""};
 
-        db.delete(SQLiteDatabaseHelper.LOCATION_TABLE_NAME, SQLiteDatabaseHelper.USER_ID+"=?", arguments);
+        db.delete(LOCATION_TABLE_NAME, USER_ID + "=?", arguments);
 
+    }
+
+    public void insetUser(User user) {
+
+        try{
+
+            // Gets the data repository in write mode
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            // Create a new map of values, where column names are the keys
+            ContentValues values = new ContentValues();
+            values.put(EMAIL, user.getUsername());
+            values.put(PASSWORD, user.getPassword());
+
+            // Insert the new row, returning the primary key value of the new row
+            long newRowId = db.insert(UNREGISTERED_USERS_TABLE_NAME, null, values);
+
+        } catch (Exception e) {
+            //ACRA log
+            ACRA.getErrorReporter().putCustomData("SQLiteDatabaseHelper.insertUser():error", e.toString());
+
+            e.printStackTrace();
+        }
     }
 
 }

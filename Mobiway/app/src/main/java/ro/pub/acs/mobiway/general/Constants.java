@@ -69,6 +69,7 @@ public abstract class Constants {
     public static final String KEY_EXPIRES_ON       = "expiresOn";
     public static final String KEY_EXPIRES_IN_FB    = "expiresInFB";
     public static final String KEY_CURRENT_LANGUAGE = "currentLanguage";
+    public static final String KEY_SERVER_DOWN      = "serverDown";
 
     public static final String KEY_LATITUDE                 = "latitude";
     public static final String KEY_LONGITUDE                = "longitude";
@@ -78,7 +79,6 @@ public abstract class Constants {
     public static final String KEY_FIRST_TIME_USE           = "firstTimeUse";
     public static final String KEY_MAP_TYPE                 = "mapType";
     public static final String KEY_ROUTE_TYPE               = "routeType";
-    public static final String KEY_LOCATION_HISTORY         = "locationHistory";
     public static final String KEY_LOC_PREFERENCES          = "locationPreferences";
     public static final String KEY_POLICY_PREFERENCES       = "policyPreferences";
 }

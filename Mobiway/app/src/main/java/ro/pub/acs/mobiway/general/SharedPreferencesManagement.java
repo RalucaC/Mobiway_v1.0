@@ -187,6 +187,15 @@ public class SharedPreferencesManagement {
         editor.commit();
     }
 
+    public void setServerDown(boolean status) {
+        editor.putBoolean(Constants.KEY_SERVER_DOWN, status);
+        editor.commit();
+    }
+
+    public boolean isServerDown() {
+
+        return pref.getBoolean(Constants.KEY_SERVER_DOWN, true);
+    }
     public void inspectSettings() {
 
         //ACRA log

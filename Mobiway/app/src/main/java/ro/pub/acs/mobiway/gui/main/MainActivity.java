@@ -112,6 +112,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private ArrayList<Polyline> aPolyline = new ArrayList<>();
 
     private void showRoute(final String routingEngine) {
+
+        if(spm.isServerDown()) {
+            return;
+        }
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -494,12 +499,12 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 @Override
                 public void run() {
                     Log.v(TAG, "Save location in local storage:" + location.getLatitude() + " " + location.getLongitude() + " " + location.getSpeed());
-                    sqlDbHelper.saveLocationInLocalStorage(location);
+                    sqlDbHelper.insertLocation(location);
                 }
             });
             threadDb.start();
 
-            final ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationsFromDb = sqlDbHelper.readLocationsFromLocalStorage(getApplicationContext());
+            final ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationsFromDb = sqlDbHelper.readLocations(getApplicationContext());
 
             if (!locationsFromDb.isEmpty()) {
                 Thread threadCall = new Thread(new Runnable() {
@@ -509,11 +514,14 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
                             RestClient restClient = new RestClient();
 
-                            Log.d(TAG, "Update locations");
-                            restClient.getApiService().updateLocations(locationsFromDb);
+                            if(!spm.isServerDown()) {
+
+                                Log.d(TAG, "Update locations");
+                                restClient.getApiService().updateLocations(locationsFromDb);
+                            }
 
                             Log.d(TAG, "Remove locations");
-                            sqlDbHelper.removeLocationsFromLocalStorage(getApplicationContext());
+                            sqlDbHelper.removeLocations(getApplicationContext());
 
                         } catch (Exception e) {
 
@@ -527,7 +535,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 threadCall.start();
             }
         } else {
-            sqlDbHelper.saveLocationInLocalStorage(location);
+            sqlDbHelper.insertLocation(location);
         }
     }
 
@@ -577,8 +585,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 @Override
                 public void run() {
                     try {
-                        RestClient restClient = new RestClient();
-                        restClient.getApiService().newJourney(spm.getAuthUserId());
+                        if(!spm.isServerDown()) {
+
+                            RestClient restClient = new RestClient();
+                            restClient.getApiService().newJourney(spm.getAuthUserId());
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -627,6 +638,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private void getContacts() {
         final Context context = getApplicationContext();
 
+        if(spm.isServerDown()) {
+            return;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -667,6 +681,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void getFriends() {
+
+        if(spm.isServerDown()) {
+            return;
+        }
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -718,14 +737,18 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         final ArrayList<String> prefList = new ArrayList<>();
         prefList.addAll(locPref);
 
+        if(spm.isServerDown()) {
+            return;
+        }
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+
                     RestClient restClient = new RestClient();
                     List<Place> result = restClient.getApiService().getNearbyLocations(prefList);
-
                     showPlacesOnMap(result);
+
                 } catch (Exception e) {
 
                     //ACRA log
@@ -740,6 +763,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     public void getTrafficEvents() {
 
+        if(spm.isServerDown()) {
+            return;
+        }
         //ACRA log
         ACRA.getErrorReporter().putCustomData("MainActivity.getTrafficEvents:error", "called function");
 
@@ -951,6 +977,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void loadDefaultPolicyValues() {
+
+        if(spm.isServerDown()) {
+            return;
+        }
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1048,7 +1079,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         return canConnect;
     }
 
-    private void checkServerStatus() {
+    public void checkServerStatus() {
 
         Thread thread = new Thread(new Runnable() {
             @Override

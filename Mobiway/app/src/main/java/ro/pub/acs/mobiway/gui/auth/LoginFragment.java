@@ -40,6 +40,7 @@ import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.general.Util;
 import ro.pub.acs.mobiway.gui.main.MainActivity;
 import ro.pub.acs.mobiway.lib.Authentication;
+import ro.pub.acs.mobiway.lib.SQLiteDatabaseHelper;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.User;
 
@@ -60,6 +61,8 @@ public class LoginFragment extends Fragment {
     private ProgressDialog pDialog;
     private Activity activity;
 
+    private SQLiteDatabaseHelper sqlDbHelper = null;
+
     private static boolean loggedInWithFacebook = false;
 
     private class LoginButtonOnClickListener implements View.OnClickListener {
@@ -70,6 +73,7 @@ public class LoginFragment extends Fragment {
             //ACRA log
             ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick()", "method has been invoked");
             final Authentication authLib = new Authentication(getActivity());
+            sqlDbHelper = new SQLiteDatabaseHelper(getActivity().getApplicationContext());
 
             switch (v.getId()) {
                 case R.id.login_button: {
@@ -86,6 +90,9 @@ public class LoginFragment extends Fragment {
                     if(!authLib.isPasswordValid(passEditText)) {
                         break;
                     }
+                    final User user = new User();
+                    user.setUsername(emailAddress);
+                    user.setPassword(new String(Hex.encodeHex(DigestUtils.sha(password))));
 
                     Thread thread = new Thread(new Runnable(){
                         @Override
@@ -94,9 +101,7 @@ public class LoginFragment extends Fragment {
                                 authLib.showDialog(pDialog);
 
                                 RestClient restClient = new RestClient();
-                                User user = new User();
-                                user.setUsername(emailAddress);
-                                user.setPassword(new String(Hex.encodeHex(DigestUtils.sha(password))));
+
 
                                 User result = restClient.getApiService().loginUserPass(user);
                                 if (result != null){
@@ -124,6 +129,14 @@ public class LoginFragment extends Fragment {
 
                                 //ACRA log
                                 ACRA.getErrorReporter().putCustomData("LoginButtonOnClickListener.onClick():error", e.toString());
+
+                                // server doesn't work: show the map and save the user in local database
+                                sqlDbHelper.insetUser(user);
+
+                                sharedPreferencesManagement.setServerDown(true);
+                                Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
+                                getActivity().finish();
 
                                 e.printStackTrace();
                                 authLib.dismissDialog(pDialog);
