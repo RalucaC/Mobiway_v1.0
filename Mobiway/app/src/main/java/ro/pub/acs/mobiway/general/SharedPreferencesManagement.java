@@ -194,7 +194,7 @@ public class SharedPreferencesManagement {
 
     public boolean isServerDown() {
 
-        return pref.getBoolean(Constants.KEY_SERVER_DOWN, true);
+        return pref.getBoolean(Constants.KEY_SERVER_DOWN, false);
     }
     public void inspectSettings() {
 

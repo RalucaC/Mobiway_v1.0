@@ -1,14 +1,20 @@
 package ro.pub.acs.mobiway.gui.auth;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +38,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
 import java.util.Arrays;
 import java.util.Date;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.general.Util;
@@ -180,6 +192,21 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle state) {
 
+        try {
+            PackageInfo info = getActivity().getPackageManager().getPackageInfo(
+                    "ro.pub.acs.mobiway",
+                    PackageManager.GET_SIGNATURES);
+            for (android.content.pm.Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+
+        } catch (NoSuchAlgorithmException e) {
+
+        }
+
         //ACRA log
         ACRA.getErrorReporter().putCustomData("LoginFragment.onCreateView()", "method has been invoked");
 
@@ -228,14 +255,22 @@ public class LoginFragment extends Fragment {
 
                                         Log.d(TAG, "FBObjectResponse" + responseObj.toString());
 
+                                        if (ContextCompat.checkSelfPermission(getActivity(),
+                                                Manifest.permission.READ_PHONE_STATE)
+                                                != PackageManager.PERMISSION_GRANTED) {
+                                            ActivityCompat.requestPermissions(getActivity(),
+                                                    new String[]{Manifest.permission.READ_PHONE_STATE},
+                                                    2);
+                                        }
+
                                         final String email = responseObj.getString("email");
                                         final String firstName = responseObj.getString("first_name");
                                         final String lastName = responseObj.getString("last_name");
                                         final String phoneNumber = Util.getPhoneNumber(getActivity());
 
-                                        Thread thread = new Thread(new Runnable() {
+                                        /*Thread thread = new Thread(new Runnable() {
                                             @Override
-                                            public void run() {
+                                            public void run() { */
                                                 try {
                                                     RestClient restClient = new RestClient();
                                                     User user = new User();
@@ -247,21 +282,31 @@ public class LoginFragment extends Fragment {
                                                     user.setFacebookExpiresIn(tokenExpiresIn);
                                                     user.setPassword("");
 
-                                                    User result = restClient.getApiService().loginFacebook(user);
+                                                    restClient.getApiService().loginFacebook(user, new Callback<User>() {
+                                                        @Override
+                                                        public void success(User result, Response response) {
+                                                            if (result != null) {
+                                                                sharedPreferencesManagement.createLoginSession(result.getId(),
+                                                                        result.getLastname(), result.getUsername(), result.getPassword(),
+                                                                        result.getFirstname(), result.getAuth_token(), result.getAuthExpiresIn());
+                                                                Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
+                                                                startActivity(intent);
+                                                                getActivity().finish();
+                                                                authLib.dismissDialog(pDialog);
+                                                            } else {
+                                                                LoginManager.getInstance().logOut();
+                                                                authLib.dismissDialog(pDialog);
+                                                            }
+                                                            Log.e(TAG, "authenticatedUser: " + result);
+                                                        }
 
-                                                    if (result != null) {
-                                                        sharedPreferencesManagement.createLoginSession(result.getId(),
-                                                                result.getLastname(), result.getUsername(), result.getPassword(),
-                                                                result.getFirstname(), result.getAuth_token(), result.getAuthExpiresIn());
-                                                        Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
-                                                        startActivity(intent);
-                                                        getActivity().finish();
-                                                        authLib.dismissDialog(pDialog);
-                                                    } else {
-                                                        LoginManager.getInstance().logOut();
-                                                        authLib.dismissDialog(pDialog);
-                                                    }
-                                                    Log.e(TAG, "authenticatedUser: " + result);
+                                                        @Override
+                                                        public void failure(RetrofitError error) {
+
+                                                        }
+                                                    });
+
+
                                                 } catch (Exception e) {
 
                                                     //ACRA log
@@ -271,9 +316,9 @@ public class LoginFragment extends Fragment {
                                                     LoginManager.getInstance().logOut();
                                                     authLib.dismissDialog(pDialog);
                                                 }
-                                            }
+                                      /*      }
                                         });
-                                        thread.start();
+                                        thread.start();*/
                                     } catch (JSONException e) {
 
                                         //ACRA log

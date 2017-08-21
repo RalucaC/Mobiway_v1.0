@@ -29,4 +29,7 @@
 
 	<!-- DAO Mapping -->
 	<import resource="spring-dao.cfg.xml" />
+
+	<bean id="streetSpeeds" class="ro.pub.acs.mobiway.model.StreetSpeeds" />
+
 </beans>

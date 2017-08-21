@@ -15,8 +15,10 @@ public interface Constants {
 	public static final int OSRM_FOOT_PORT = 5002;
 	public static final String OSRM_BICYCLE_PARAMETER = "Bicycle";
 	public static final String OSRM_FOOT_PARAMETER = "Foot";
-	public static final String URL_NOMINATIM_API = "https://nominatim.openstreetmap.org";
+	public static final String URL_NOMINATIM_API = "http://nominatim.openstreetmap.org";
 	public static final String URL_NOMINATIM_API_LOCAL = "http://osm-server/nominatim";
+
+	public static final String GOOGLE_MAPS_GEOCODING_API_KEY = "AIzaSyBeDgSW9xbTbltiKmgE2UwKOYQmQosjGyQ";
 	
 	public static final boolean DEBUG_MODE = true;
 

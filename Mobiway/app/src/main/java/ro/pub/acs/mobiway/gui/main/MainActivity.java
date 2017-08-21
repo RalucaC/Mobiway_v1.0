@@ -1,11 +1,15 @@
 package ro.pub.acs.mobiway.gui.main;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -63,9 +67,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import retrofit.RetrofitError;
 import ro.pub.acs.mobiway.R;
+import ro.pub.acs.mobiway.core.LocationService;
 import ro.pub.acs.mobiway.core.RoutingHelper;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
@@ -77,12 +86,13 @@ import ro.pub.acs.mobiway.lib.SQLiteDatabaseHelper;
 import ro.pub.acs.mobiway.rest.RestClient;
 import ro.pub.acs.mobiway.rest.model.Place;
 import ro.pub.acs.mobiway.rest.model.Policy;
+import ro.pub.acs.mobiway.rest.model.Position;
 import ro.pub.acs.mobiway.rest.model.User;
 
 
 public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener,
-        GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
+        /*GoogleMap.OnMarkerClickListener, */ GoogleMap.OnMapClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static List<User> friendsNames = null;
@@ -110,6 +120,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private RoutingHelper routingHelper;
 
     private ArrayList<Polyline> aPolyline = new ArrayList<>();
+
+    private Handler handler;
 
     private void showRoute(final String routingEngine) {
 
@@ -262,6 +274,74 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         if (googleApiClient != null && googleApiClient.isConnected()) {
             startLocationUpdates();
         }
+
+        startSpeedUpdate();
+    }
+
+    public void startSpeedUpdate() {
+        /*
+        Thread thread = new Thread() {
+            public void run() {
+                handler = new Handler();
+
+                final Runnable r = new Runnable() {
+                    public void run() {
+
+                        LocationService locationService = new LocationService(getApplicationContext());
+                        Location location = locationService.getLocation();
+
+                        RestClient restClient = new RestClient();
+                        Position position = new Position(location.getLatitude(), location.getLongitude(), location.getSpeed());
+                        restClient.getApiService().sendPosition(position);
+
+                        handler.postDelayed(this, 1000);
+                    }
+                };
+
+                handler.postDelayed(r, 1000);
+            }
+        };
+        thread.start();
+        */
+
+        Thread thread = new Thread() {
+            public void run() {
+                Looper.prepare();
+
+                final Handler handler = new Handler();
+
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do Work
+
+                        LocationService locationService = new LocationService(getApplicationContext());
+                        Location location = locationService.getLocation();
+
+                        RestClient restClient = new RestClient();
+                        Position position = new Position(location.getLatitude(), location.getLongitude(), location.getSpeed());
+
+                        try {
+                            restClient.getApiService().sendPosition(position);
+                        } catch (RetrofitError retrofitError) {
+                            retrofitError.printStackTrace();
+                        }
+                        //restClient.getApiService().updateLocation(new ro.pub.acs.mobiway.rest.model.Location());
+
+                        //handler.removeCallbacks(this);
+                        //Looper.myLooper().quit();
+
+                        handler.postDelayed(this, 1000);
+                    }
+                }, 1000);
+
+                Looper.loop();
+            }
+        };
+        thread.start();
+        //ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        //executor.scheduleAtFixedRate(thread, 0, 3, TimeUnit.SECONDS);
     }
 
     @Override
@@ -276,7 +356,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         if (googleMap == null) {
             googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-            googleMap.setOnMarkerClickListener(this);
+            //googleMap.setOnMarkerClickListener(this);
             googleMap.setOnMapClickListener(this);
             googleMap.getUiSettings().setMyLocationButtonEnabled(false);
             googleMap.getUiSettings().setCompassEnabled(false);
@@ -553,6 +633,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         oldLocation = lastLocation;
+
         startLocationUpdates();
     }
 
@@ -763,9 +844,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     public void getTrafficEvents() {
 
-        if(spm.isServerDown()) {
+        /*if(spm.isServerDown()) {
             return;
-        }
+        }*/
         //ACRA log
         ACRA.getErrorReporter().putCustomData("MainActivity.getTrafficEvents:error", "called function");
 
@@ -848,6 +929,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         });
     }
 
+    /*
     @Override
     public boolean onMarkerClick(Marker marker) {
         hideKeyboard();
@@ -866,6 +948,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         return true;
     }
+    */
 
     @Override
     public void onMapClick(LatLng latLng) {

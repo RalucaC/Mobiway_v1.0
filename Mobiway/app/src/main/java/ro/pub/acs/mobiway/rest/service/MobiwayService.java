@@ -2,9 +2,13 @@ package ro.pub.acs.mobiway.rest.service;
 
 import java.util.*;
 
+import retrofit.Callback;
+import retrofit.client.Response;
 import retrofit.http.*;
 
 import ro.pub.acs.mobiway.general.Constants;
+import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
+import ro.pub.acs.mobiway.gui.auth.LoginFragment;
 import ro.pub.acs.mobiway.rest.TypedJsonString;
 import ro.pub.acs.mobiway.rest.model.*;
 
@@ -68,7 +72,7 @@ public interface MobiwayService {
             "Accept: application/json"
     })
     @POST(Constants.URL_AUTH_FACEBOOK)
-    User loginFacebook(@Body User body);
+    void loginFacebook(@Body User body, Callback<User> successfulLoginFacebook);
 
     @Headers({
             "Content-Type: application/json",
@@ -87,6 +91,13 @@ public interface MobiwayService {
     })
     @PUT(Constants.URL_UPDATE_LOCATION)
     boolean updateLocation(@Body Location location);
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @PUT(Constants.URL_SEND_POSITION)
+    boolean sendPosition(@Body Position position);
 
     @Headers({
             "Content-Type: application/json",
@@ -168,7 +179,8 @@ public interface MobiwayService {
 
     @Headers({
             "Content-Type: application/json",
-            "Accept: application/json"
+            "Accept: application/json",
+            //"X-Auth-Token:"
     })
     @PUT(Constants.URL_POST_EVENT + "/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}")
     boolean postEvent(

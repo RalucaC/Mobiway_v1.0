@@ -16,6 +16,8 @@ public interface UserDAO extends Serializable {
 
 	public User get(String email, String password);
 
+	public void delete(User user);
+
 	public int update(User user);
 
 	public int add(User user);
