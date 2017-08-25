@@ -25,8 +25,8 @@ import ro.pub.acs.mobiway.rest.RestClient;
 public class EventsFragment extends PreferenceFragment{
 
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
-    private final String eventNameRoadBlocked = "road_blocked";
-    private final String eventNameCarAccident = "car_accident";
+    private final String eventNameRoadBlocked = "Road Blocked";
+    private final String eventNameCarAccident = "Car Accident";
     private static final String TAG = EventsFragment.class.getSimpleName();
 
     public EventsFragment() {
@@ -97,7 +97,7 @@ public class EventsFragment extends PreferenceFragment{
                             Log.v(TAG, "spaceAccuracy" + spaceAccuracy);
                             Log.v(TAG, "timeAccuracy" + timeAccuracy);
 
-                            postEventOnFacebook((float)spm.getLatitude(), (float)spm.getLongitude());
+                            postEventOnFacebook((float)spm.getLatitude(), (float)spm.getLongitude(), eventName);
 
                             // send event to the server
                             RestClient restClient = new RestClient();
@@ -120,10 +120,11 @@ public class EventsFragment extends PreferenceFragment{
 
     }
 
-    private void postEventOnFacebook(float latitudine, float longitude) {
+    private void postEventOnFacebook(float latitudine, float longitude, String eventName) {
 
         Bundle params = new Bundle();
         params.putString("link", "http://www.google.com/maps/place/" + latitudine + "," + longitude + "\n");
+        params.putString("message", eventName);
 
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),

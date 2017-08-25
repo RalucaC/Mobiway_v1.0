@@ -96,6 +96,7 @@
  				<value>ro.pub.acs.mobiway.model.UserPolicy</value>
  				<value>ro.pub.acs.mobiway.model.TrafficEvent</value>
  				<value>ro.pub.acs.mobiway.model.UserEvent</value>
+				<value>ro.pub.acs.mobiway.model.StreetMeanSpeed</value>
  			</list>
 		</property>
 	</bean>

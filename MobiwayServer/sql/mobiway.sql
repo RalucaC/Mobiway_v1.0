@@ -352,7 +352,7 @@ DROP TABLE IF EXISTS `street_mean_speeds`;
 CREATE TABLE `street_mean_speeds` (
   `id` int(11) AUTO_INCREMENT,
   `street_name` varchar(40) NOT NULL,
-  `mean_speed` float(3, 2) NOT NULL,
+  `mean_speed` float(6, 2) NOT NULL,
   `number_of_measures` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 );

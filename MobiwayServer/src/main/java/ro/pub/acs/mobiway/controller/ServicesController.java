@@ -455,7 +455,7 @@ public class ServicesController {
 					Float newSpeedMean = oldSpeedMean + (position.getSpeed() - oldSpeedMean) / oldNoOfMeasures;
 					streetToSpeedAndNumberOfMeasures.put(addressName, new Pair<>(newSpeedMean, oldNoOfMeasures + 1));
 				} else {
-					streetToSpeedAndNumberOfMeasures.put(addressName, new Pair<Float, Integer>(position.getSpeed(), 1));
+					streetToSpeedAndNumberOfMeasures.put(addressName, new Pair<>(position.getSpeed(), 1));
 				}
 			} else {
 				System.out.println("nu merge");
