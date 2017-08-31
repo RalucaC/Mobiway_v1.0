@@ -320,7 +320,7 @@ DROP TABLE IF EXISTS `user_reputation`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_reputation` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-+  `id_user` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL,
   `app_id` varchar(40) NOT NULL,
   `reputation` float(10,6) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -347,3 +347,12 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+DROP TABLE IF EXISTS `street_mean_speeds`;
+CREATE TABLE `street_mean_speeds` (
+  `id` int(11) AUTO_INCREMENT,
+  `street_name` varchar(40) NOT NULL,
+  `mean_speed` float(6, 2) NOT NULL,
+  `number_of_measures` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+);

@@ -29,4 +29,38 @@
 
 	<!-- DAO Mapping -->
 	<import resource="spring-dao.cfg.xml" />
+
+	<bean id="streetSpeeds" class="ro.pub.acs.mobiway.model.StreetSpeeds" depends-on="streetMeanSpeedDao">
+		<constructor-arg>
+			<ref bean="streetMeanSpeedDao" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="taskScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+	</bean>
+
+	<bean id="persistMeanSpeeds" class="ro.pub.acs.mobiway.service.PersistMeanSpeeds">
+		<constructor-arg>
+			<ref bean="taskScheduler" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="streetSpeeds" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="streetMeanSpeedDao" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="postTrafficStatusToFacebook" class="ro.pub.acs.mobiway.service.PostTrafficStatusToFacebook">
+		<constructor-arg>
+			<ref bean="taskScheduler" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="streetSpeeds" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="streetMeanSpeedDao" />
+		</constructor-arg>
+	</bean>
+
 </beans>

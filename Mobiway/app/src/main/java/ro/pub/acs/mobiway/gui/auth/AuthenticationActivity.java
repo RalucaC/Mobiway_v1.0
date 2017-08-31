@@ -1,6 +1,8 @@
 package ro.pub.acs.mobiway.gui.auth;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -86,6 +88,19 @@ public class AuthenticationActivity extends ActionBarActivity implements Fragmen
 
             fragmentManager.addOnBackStackChangedListener(this);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+
+            if (checkSelfPermission(Manifest.permission.SEND_SMS)
+                    == PackageManager.PERMISSION_DENIED) {
+
+                Log.d("permission", "permission denied to SEND_SMS - requesting it");
+                String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+
+                requestPermissions(permissions, 1);
+
+            }
         }
     }
 

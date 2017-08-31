@@ -8,19 +8,25 @@ import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+
 import org.acra.ACRA;
 
 import java.util.ArrayList;
 
 import ro.pub.acs.mobiway.R;
+import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
 import ro.pub.acs.mobiway.rest.RestClient;
 
 public class EventsFragment extends PreferenceFragment{
 
     private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
-    private final String eventNameRoadBlocked = "road_blocked";
-    private final String eventNameCarAccident = "car_accident";
+    private final String eventNameRoadBlocked = "Road Blocked";
+    private final String eventNameCarAccident = "Car Accident";
     private static final String TAG = EventsFragment.class.getSimpleName();
 
     public EventsFragment() {
@@ -91,6 +97,8 @@ public class EventsFragment extends PreferenceFragment{
                             Log.v(TAG, "spaceAccuracy" + spaceAccuracy);
                             Log.v(TAG, "timeAccuracy" + timeAccuracy);
 
+                            postEventOnFacebook((float)spm.getLatitude(), (float)spm.getLongitude(), eventName);
+
                             // send event to the server
                             RestClient restClient = new RestClient();
                             restClient.getApiService().postEvent(eventName, distance, timeSinceEvent, spaceAccuracy, timeAccuracy, location);
@@ -110,6 +118,26 @@ public class EventsFragment extends PreferenceFragment{
             }
         });
 
+    }
+
+    private void postEventOnFacebook(float latitudine, float longitude, String eventName) {
+
+        Bundle params = new Bundle();
+        params.putString("link", "http://www.google.com/maps/place/" + latitudine + "," + longitude + "\n");
+        params.putString("message", eventName);
+
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/" + Constants.GROUP_ID + "/feed",
+                params,
+                HttpMethod.POST,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                    /* handle the result */
+                        Log.d("post event to fb", response.toString());
+                    }
+                }
+        ).executeAndWait();
     }
 
     private void uncheckEvents(ArrayList<CheckBoxPreference> eventsCheckboxes){

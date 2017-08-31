@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">MobiWay</string>
-    <string name="facebook_app_id">1583611691898292</string>
+    <string name="facebook_app_id">1621327204776333</string>
 
     <string name="crash_toast_text">Ooooops ! I crashed, but a report has been sent to my developer to help fix the issue !</string>
 

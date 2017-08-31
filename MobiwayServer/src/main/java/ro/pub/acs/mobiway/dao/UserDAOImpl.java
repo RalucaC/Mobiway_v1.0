@@ -79,6 +79,13 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	@Transactional
+	public void delete(User user) {
+		Session session = sessionFactory.getCurrentSession();
+		session.delete(user);
+	}
+
+	@Override
+	@Transactional
 	public User get(String token, int id) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(User.class)

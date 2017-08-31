@@ -16,12 +16,12 @@ public abstract class Constants {
     public static long LOCATION_REQUEST_FASTEST_INTERVAL = 30000;
 
     /*   Application Keys and IDs   */
-
+    public static final String GROUP_ID = "1908221552732552";
 
     /* URLs for WEB Services */
     public static final String APP_NAME     = "Mobiway";
-    public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/MobiwayServer/services";
-
+    //public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/MobiwayServer/services";
+    public static final String SERVICES_URL = "http://188.26.220.171:8080/services";
 
     public static final String URL_CHECK_SERVER_CONN    = "/checkServerConn";
     public static final String URL_CREATE_ACCOUNT       = "/signup/userpass";
@@ -53,6 +53,7 @@ public abstract class Constants {
     public static final String URL_GET_ROUTE_PG             = "/social/getRoutePG";
     public static final String URL_GET_ROUTE_FROM_MAPZEN    = "/social/getRouteFromMapzen";
 
+    public static final String URL_SEND_POSITION = "/position/update";
 
     /* SharedPreferences file name */
     public static final String PREF_NAME = "mobiwayPreferences";

@@ -6,6 +6,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+import com.google.gson.JsonObject;
+import javafx.util.Pair;
+import org.json.JSONException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.http.HttpEntity;
@@ -38,16 +45,7 @@ import ro.pub.acs.mobiway.dao.UserContactDAO;
 import ro.pub.acs.mobiway.dao.UserDAO;
 import ro.pub.acs.mobiway.dao.UserEventDAO;
 import ro.pub.acs.mobiway.dao.UserPolicyDAO;
-import ro.pub.acs.mobiway.model.Journey;
-import ro.pub.acs.mobiway.model.JourneyData;
-import ro.pub.acs.mobiway.model.Location;
-import ro.pub.acs.mobiway.model.Place;
-import ro.pub.acs.mobiway.model.User;
-import ro.pub.acs.mobiway.model.Policy;
-import ro.pub.acs.mobiway.model.TrafficEvent;
-import ro.pub.acs.mobiway.model.UserContact;
-import ro.pub.acs.mobiway.model.UserEvent;
-import ro.pub.acs.mobiway.model.UserPolicy;
+import ro.pub.acs.mobiway.model.*;
 import ro.pub.acs.mobiway.utils.Constants;
 
 @SuppressWarnings("deprecation")
@@ -102,14 +100,15 @@ public class ServicesController {
 	
 	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/location/postEvent/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}", method = RequestMethod.PUT)
-	public @ResponseBody boolean postEvent(
+	public boolean postEvent(
 			@PathVariable String eventName,
 			@PathVariable Float distance,
 			@PathVariable Float timeSinceEvent,
 			@PathVariable Float spaceAccuracy,
 			@PathVariable Float timeAccuracy,
 			@RequestBody Location location,
-			@RequestHeader("X-Auth-Token") String authToken) {
+			@RequestHeader("X-Auth-Token") String authToken
+			) {
 
 		User user = userDAO.get(authToken, location.getIdUser());
 		if (user == null) {
@@ -135,6 +134,7 @@ public class ServicesController {
 		event.setLongitude((double)location.getLongitude());
 		event.setOsmWayId(osmWayId);
 		userEventDAO.add(event);
+
 
 		return true;
 	}
@@ -239,54 +239,54 @@ public class ServicesController {
 	@RequestMapping(value = "/authenticate/facebook", method = RequestMethod.POST)
 	public @ResponseBody User loginWithFacebook(@RequestBody User user) {
 		/* Get Facebook profile */
-		Facebook facebook = new FacebookTemplate(user.getFacebook_token());
-		org.springframework.social.facebook.api.User profile = facebook
-				.userOperations().getUserProfile();
-		if (profile == null || profile.getEmail() == null
-				|| !user.getUsername().equals(profile.getEmail())) {
-			return null;
-		}
+			Facebook facebook = new FacebookTemplate(user.getFacebook_token());
+			org.springframework.social.facebook.api.User profile = facebook.userOperations().getUserProfile();
 
-		String uuid = UUID.randomUUID().toString();
-		DateTime dateTime = new DateTime(0);
-		DateTime threeMonthsLater = new DateTime().plusMonths(3);
-		long seconds = Seconds.secondsBetween(dateTime, threeMonthsLater)
-				.getSeconds();
-		user.setAuth_token(uuid);
-		user.setAuthExpiresIn((int)seconds);
-		user.setUuid(uuid);
+			if (profile == null || profile.getEmail() == null
+					|| !user.getUsername().equals(profile.getEmail())) {
+				return null;
+			}
+
+			String uuid = UUID.randomUUID().toString();
+			DateTime dateTime = new DateTime(0);
+			DateTime threeMonthsLater = new DateTime().plusMonths(3);
+			long seconds = Seconds.secondsBetween(dateTime, threeMonthsLater)
+					.getSeconds();
+			user.setAuth_token(uuid);
+			user.setAuthExpiresIn((int) seconds);
+			user.setUuid(uuid);
 
 		/* Save and return the new user */
-		int userId;
-		
+			int userId;
+
 		/* Update user into database */
-		User oldUser = userDAO.get(user.getUsername());
-		if (oldUser != null) {
-			user.setId(oldUser.getId());
-			userId = userDAO.update(user);
-		} else {
+			User oldUser = userDAO.get(user.getUsername());
+			if (oldUser != null) {
+				userDAO.delete(oldUser);
+			}
+
 			userId = userDAO.add(user);
-		}
-		
-		User newUser = userDAO.get(userId);
+			User newUser = userDAO.get(userId);
 
 		/* Get friend from Facebook and insert into database */
-		List<String> friendIds = facebook.friendOperations().getFriendIds();
+			List<String> friendIds = facebook.friendOperations().getFriendIds();
 
-		for (String friendId : friendIds) {
-			User userFried = userDAO.get(friendId);
-			UserContact userContact1 = new UserContact();
-			UserContact userContact2 = new UserContact();
-			userContact1.setIdUser(newUser);
-			userContact1.setIdFriendUser(userFried);
-			userContact2.setId(userFried.getId());
-			userContact2.setIdFriendUser(newUser);
+			for (String friendId : friendIds) {
+				User userFriend = userDAO.get(friendId);
+				if (userFriend != null) {
+					UserContact userContact1 = new UserContact();
+					UserContact userContact2 = new UserContact();
+					userContact1.setIdUser(newUser);
+					userContact1.setIdFriendUser(userFriend);
+					userContact2.setId(userFriend.getId());
+					userContact2.setIdFriendUser(newUser);
 
-			userContactDAO.addFriend(userContact1);
-			userContactDAO.addFriend(userContact2);
-		}
+					userContactDAO.addFriend(userContact1);
+					userContactDAO.addFriend(userContact2);
+				}
+			}
 
-		return newUser;
+			return newUser;
 	}
 
 	@RequestMapping(value = "/authenticate/userpass", method = RequestMethod.POST)
@@ -365,9 +365,104 @@ public class ServicesController {
 		
 		if (!acceptedShareSpeedPolicy) {
 			location.setSpeed(null);
-		}	
+		}
 	}
-	
+
+	@Autowired
+	private StreetSpeeds streetSpeeds;
+
+	@RequestMapping(value = "/position/update", method = RequestMethod.PUT)
+	public @ResponseBody boolean updatePosition(@RequestBody Position position,
+												@RequestHeader("X-Auth-Token") String authToken) {
+
+		HttpClient httpClient = new DefaultHttpClient();
+
+		/* Perform Reverse Geocoding for a location */
+		StringBuilder url = new StringBuilder();
+
+		url.append("https://maps.googleapis.com/maps/api/geocode/json?latlng=");
+		url.append(position.getLatitude());
+		url.append(",");
+		url.append(position.getLongitude());
+
+		url.append("&key=");
+		url.append(Constants.GOOGLE_MAPS_GEOCODING_API_KEY);
+
+		url.append("&location_type=ROOFTOP");
+		url.append("&result_type=street_address");
+		url.append("&components=route");
+
+		HttpGet httpGet = new HttpGet(url.toString());
+
+		HttpResponse httpGetResponse = null;
+		try {
+			httpGetResponse = httpClient.execute(httpGet);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		HttpEntity httpGetEntity = httpGetResponse.getEntity();
+
+		String addressName = null;
+
+		if (httpGetEntity != null) {
+			String response = null;
+			try {
+				response = EntityUtils.toString(httpGetEntity);
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+			try {
+				JSONObject data = new JSONObject(response);
+				JSONArray results = data.getJSONArray("results");
+				if (results.length() > 0) {
+					JSONObject firstResult = results.getJSONObject(0);
+					JSONArray addressComponents = firstResult.getJSONArray("address_components");
+					if (addressComponents.length() > 0) {
+						for (int j = 0; j < addressComponents.length(); j++) {
+							JSONObject addressComponent = addressComponents.getJSONObject(j);
+							JSONArray types = addressComponent.getJSONArray("types");
+
+							boolean hasRouteType = false;
+							if (types.length() > 0) {
+								for (int k = 0; k < types.length(); k++) {
+									String type = types.getString(k);
+
+									if (type.equals("route")) {
+										hasRouteType = true;
+									}
+								}
+							}
+
+							if (hasRouteType) {
+								addressName = addressComponent.getString("short_name");
+							}
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if (addressName != null) {
+				System.out.println(addressName);
+				System.out.println(position.getSpeed());
+
+				Map<String, Pair<Float, Integer>> streetToSpeedAndNumberOfMeasures = streetSpeeds.getStreetToSpeed();
+
+				if (streetToSpeedAndNumberOfMeasures.containsKey(addressName)) {
+					Pair<Float, Integer> speedAndNumberOfMeasures = streetToSpeedAndNumberOfMeasures.get(addressName);
+					Float oldSpeedMean = speedAndNumberOfMeasures.getKey();
+					Integer oldNoOfMeasures = speedAndNumberOfMeasures.getValue();
+					Float newSpeedMean = oldSpeedMean + (position.getSpeed() - oldSpeedMean) / oldNoOfMeasures;
+					streetToSpeedAndNumberOfMeasures.put(addressName, new Pair<>(newSpeedMean, oldNoOfMeasures + 1));
+				} else {
+					streetToSpeedAndNumberOfMeasures.put(addressName, new Pair<>(position.getSpeed(), 1));
+				}
+			} else {
+				System.out.println("nu merge");
+			}
+		}
+		return false;
+	}
 
 	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
@@ -466,10 +561,10 @@ public class ServicesController {
 
 			/* Perform Reverse Geocoding for a location */
 			StringBuilder url = new StringBuilder();
-			url.append(Constants.URL_NOMINATIM_API_LOCAL);
-			// url.append(Constants.URL_NOMINATIM_API);
-			// url.append("/reverse?format=json&zoom=18&addressdetails=0");
-			url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
+			//url.append(Constants.URL_NOMINATIM_API_LOCAL);
+			 url.append(Constants.URL_NOMINATIM_API);
+			 url.append("/reverse?format=json&zoom=18&addressdetails=0");
+			//url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
 			url.append("&lat=" + location.getLatitude());
 			url.append("&lon=" + location.getLongitude());
 
@@ -486,6 +581,7 @@ public class ServicesController {
 			// Request can fail for a number of reasons
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
+            int a = 3;
 		}
 		return osmId;
 	}
@@ -509,7 +605,7 @@ public class ServicesController {
 			bw.newLine();
 
 			for (Location loc: routePoints) {
-				bw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + getOSMId(loc));
+				//bw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + getOSMId(loc));
 				bw.newLine();
 			}
 
@@ -548,7 +644,7 @@ public class ServicesController {
 				return true;
 			}
 		}
-		
+
 		return false;
 		
 	}
@@ -667,7 +763,7 @@ public class ServicesController {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 		System.out.println("get PG route------------");
 		
-Calendar start = Calendar.getInstance();
+		Calendar start = Calendar.getInstance();
 		
 		try {
 			Calendar rightNow = Calendar.getInstance();
@@ -676,8 +772,8 @@ Calendar start = Calendar.getInstance();
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
 			url.append(Constants.URL_PGROUTING_API + "/pgroute.php?");
-			url.append("src=" + locations.get(0).getLatitude() + "," + locations.get(0).getLongitude());
-			url.append("&dst=" + locations.get(1).getLatitude() + "," + locations.get(1).getLongitude());
+			//url.append("src=" + locations.get(0).getLatitude() + "," + locations.get(0).getLongitude());
+			//url.append("&dst=" + locations.get(1).getLatitude() + "," + locations.get(1).getLongitude());
 			url.append("&hour=" + currentHour);
 			System.out.println("URL------------" + url.toString());
 			HttpGet httpGet = new HttpGet(url.toString());
@@ -722,7 +818,7 @@ Calendar end = Calendar.getInstance();
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 		System.out.println("get route------------");
 		
-Calendar start = Calendar.getInstance();		
+		Calendar start = Calendar.getInstance();
 		
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
